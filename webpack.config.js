@@ -1,3 +1,4 @@
+const loader = require('file-loader');
 const path = require('path');
 
 module.exports = {
