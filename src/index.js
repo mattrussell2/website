@@ -25,7 +25,7 @@ async function loadTexture(imgName, imgx) {
     const cube = new THREE.Mesh(new THREE.BoxGeometry(7,7,0),
                                 new THREE.MeshBasicMaterial( { map: texture, transparent:true }));
     cube.position.x = imgx > 90 ? -100 + imgx : imgx;
-    cube.position.y = 5;
+    cube.position.y = 3.5;
     cube.position.z = imgx > 90 ? 60 : 50;
     let scale = imgx > 90 ? 0.75 : 1;
     cube.scale.set(scale, scale, scale);
@@ -35,11 +35,11 @@ async function loadTexture(imgName, imgx) {
 async function loadImages() {
     let imgx = -28;
 
-    let pgimgs = ['python-plain.svg','cplusplus-original.svg', 
+    let pgimgs = ['python-plain.svg','cplusplus-original.svg', 'javascript-original.svg', 'java-original.svg',
                   'bash-original.svg', 'matlab-plain.svg', 'docker-original.svg', 
                   'flask-original.svg', 'git-original.svg', 'digitalocean-original.svg',
                   'github-original.svg', 'gitlab-original.svg', 'heroku-original.svg',
-                  'java-original.svg', 'javascript-original.svg', 'linux-plain.svg', 
+                  'linux-plain.svg', 
                   'pandas-original.svg', 'postgresql-original.svg', 'threejs-original.svg'];
     for (let imgName of pgimgs) {
         await loadTexture(imgName, imgx);
