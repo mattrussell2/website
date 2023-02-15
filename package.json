@@ -2,7 +2,8 @@
   "dependencies": {
     "babel-loader": "^9.1.2",
     "file-loader": "^6.2.0",
-    "three": "^0.149.0"
+    "three": "^0.149.0",
+    "three.interaction": "^0.2.3"
   },
   "devDependencies": {
     "webpack": "^5.75.0",

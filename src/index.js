@@ -1,13 +1,13 @@
 require('file-loader?name=[name].[ext]!./index.html');
 import * as THREE from 'three';
 
-import {FontLoader} from './three/FontLoader';
-import {TextGeometry} from './three/TextGeometry';
-
-import {Water} from './three/Water';
-import {Sky} from './three/Sky';
+import { FontLoader } from './three/FontLoader';
+import { TextGeometry } from './three/TextGeometry';
+import { Water } from './three/Water';
+import { Sky } from './three/Sky';
 
 import { SVGLoader } from './three/SVGLoader.js';
+import { Interaction } from 'three.interaction/src/index.js'; 
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -15,11 +15,13 @@ const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.inner
 const CAMX = 0;
 const CAMY = 20; 
 const CAMZ = 100;
-camera.position.set( CAMX, CAMY, CAMZ);
+camera.position.set( CAMX, CAMY, CAMZ );
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
+
+const interaction = new Interaction(renderer, scene, camera);
 
 var nameText;
 var headers = [];
@@ -92,17 +94,13 @@ function loadImages() {
 
     const w = visibleWidthAtZDepth(imgz, camera);
     const wDelta = w / pgimgs.length;
-    if (wDelta <= (plCubeDim*.95)) {
-        console.log("HERE");
-        console.log('wdelta',wDelta, 'plcubedim', plCubeDim);
+    if (wDelta <= plCubeDim*.95) {
         plCubeDim *= .85;
         loadImages();
         return;
     }
-    console.log("good wdelta", wDelta, "good plcubedim", plCubeDim, 'prop: ',(plCubeDim / 2 + plCubeDim*.2));
-    // console.log('wdelta',wDelta);
-    const ledge = -(w / 2) + wDelta / 2.0;
 
+    const ledge = -(w / 2) + wDelta / 2.0;
     let imgx = ledge;
     let imgy = 2;
     
@@ -132,19 +130,19 @@ function loadText() {
             scene.remove(nameText);
         }
 
-        let textGeo = new TextGeometry( 'matt russell', 
-                                    {
-                                        font: font,
-                                        size: nameSize,
-                                        height: 1,
-                                        curveSegments: 12
-                                    });
+        let textGeo = new TextGeometry('matt russell', 
+                                        {
+                                            font: font,
+                                            size: nameSize,
+                                            height: 1,
+                                            curveSegments: 12
+                                        });
         textGeo.computeBoundingBox();
         const z = 30;
         const w = visibleWidthAtZDepth(z, camera);
         const ledge = -(w / 2);
         nameText = new Water(textGeo, waterOpts);
-        nameText.position.set(ledge + 2, 1, z);
+        nameText.position.set(ledge + 2, 5, z);
         scene.add(nameText); 
         if (textGeo.boundingBox.max.x >= w*.4) {
             nameSize *= .8;
@@ -153,11 +151,12 @@ function loadText() {
         }
         
         for (let header of headers) {
-            scene.remove(header);
+            for (let h of header) {
+                scene.remove(h);
+            }
         }
         headers = [];
-
-        const y = visibleHeightAtZDepth(z, camera) - CAMY;
+        const y = 1;
         let headerSpace = w;
         const headerTxt = ['about', 'projects', 'teaching', 'research', 'contact', 'resume'];
         for (let header of headerTxt) {
@@ -169,16 +168,29 @@ function loadText() {
                                             curveSegments: 12
                                         });
             textGeo.computeBoundingBox();
+            const headerOpts = waterOpts;
+            headerOpts.waterColor = 0x0000ff;
             let text = new Water(textGeo, waterOpts);
-            scene.add(text);   
-            headers.push(text);
+            scene.add(text); 
+            text.cursor = 'pointer';
+            // text.on('click', function(ev) {console.log("yeeeeeeeeet")});  
+            headers.push([text]);
+            console.log(headers);
             headerSpace -= textGeo.boundingBox.max.x;
         }
         let headerDelta = headerSpace / headerTxt.length;
         let x = ledge + headerDelta / 2;
         for (let header of headers) {
-            header.position.set(x, y, z);
-            x += headerDelta + header.geometry.boundingBox.max.x;
+            header[0].position.set(x, y, z);
+            // add a transparent bounding box for each header
+            const box = new THREE.Mesh(new THREE.BoxGeometry(header[0].geometry.boundingBox.max.x, header[0].geometry.boundingBox.max.y, 0), 
+                                       new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
+            box.position.set(x + header[0].geometry.boundingBox.max.x / 2, y+1, z+1.5);
+            box.cursor = 'pointer'
+            box.on('click', function(ev) {console.log("yeeeeeeeeet")});
+            scene.add(box);
+            header.push(box);
+            x += headerDelta + header[0].geometry.boundingBox.max.x;
         }
         if (headerSpace <= 5) {
             headerSize /= 2;
@@ -233,6 +245,11 @@ function updateSun() {
     scene.environment = renderTarget.texture;
 }
 
+// // add light to scene illuminating the text above the water
+// const light = new THREE.DirectionalLight( 0xffffff, 1 );
+// light.position.set( 0, 0, -1 );
+// scene.add( light );
+
 
 function animate() {
     requestAnimationFrame( animate );
@@ -244,8 +261,8 @@ function animate() {
     if (nameText !== undefined) {
         nameText.material.uniforms['time'].value += 1.0 / 360.0;
     }
-    if (water !== undefined) {
-
+    for (let header of headers) {
+        header[0].material.uniforms['time'].value += 1.0 / 360.0;
     }
 
     renderer.render( scene, camera );
