@@ -1,13 +1,13 @@
 require('file-loader?name=[name].[ext]!./index.html');
 import * as THREE from 'three';
 
-import {FontLoader} from '../static/FontLoader';
-import {TextGeometry} from '../static/TextGeometry';
+import {FontLoader} from './three/FontLoader';
+import {TextGeometry} from './three/TextGeometry';
 
-import {Water} from '../static/Water';
-import {Sky} from '../static/Sky';
+import {Water} from './three/Water';
+import {Sky} from './three/Sky';
 
-import { SVGLoader } from '../static/SVGLoader.js';
+import { SVGLoader } from './three/SVGLoader.js';
 
 
 const scene = new THREE.Scene();
@@ -18,32 +18,53 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+window.addEventListener( 'resize', onWindowResize );
+
+function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
 const logopath = '../static/logos/';
 
-async function loadTexture(imgName, imgx) {
+async function loadTexture(imgName, pos, scale) {
     const texture = new THREE.TextureLoader().load(logopath + imgName);
     const cube = new THREE.Mesh(new THREE.BoxGeometry(7,7,0),
                                 new THREE.MeshBasicMaterial( { map: texture, transparent:true }));
-    cube.position.x = imgx > 90 ? -100 + imgx : imgx;
-    cube.position.y = 5;
-    cube.position.z = imgx > 90 ? 60 : 50;
-    let scale = imgx > 90 ? 0.75 : 1;
+    cube.position.set(pos);
+    // cube.position.y = 5;
+    // cube.position.z = imgx > 90 ? 60 : 50;   
     cube.scale.set(scale, scale, scale);
     scene.add( cube );
 }
 
 async function loadImages() {
+    
     let imgx = -28;
-
-    let pgimgs = ['python-plain.svg','cplusplus-original.svg', 
-                  'bash-original.svg', 'matlab-plain.svg', 'docker-original.svg', 
-                  'flask-original.svg', 'git-original.svg', 'digitalocean-original.svg',
-                  'github-original.svg', 'gitlab-original.svg', 'heroku-original.svg',
-                  'java-original.svg', 'javascript-original.svg', 'linux-plain.svg', 
-                  'pandas-original.svg', 'postgresql-original.svg', 'threejs-original.svg'];
+    let imgy = 5;
+    let imgz = 50;
+    let scale = 1;
+    // 'flask-original.svg', 'linux-plain.svg', 
+    let pgimgs = ['python-plain.svg','cplusplus-original.svg', 'javascript-original.svg', 
+                  'java-original.svg', 'matlab-plain.svg', 
+                  'bash-original.svg',  'docker-original.svg', 
+                  'digitalocean-original.svg', 'heroku-original.svg',
+                  'pandas-original.svg', 'postgresql-original.svg', 'threejs-original.svg',
+                  'git-original.svg' //, 'github-original.svg', 'gitlab-original.svg',                    
+                  ];
     for (let imgName of pgimgs) {
-        await loadTexture(imgName, imgx);
+        if (imgx > 90) {
+            imgx = -28;            
+            imgz += 10;
+            scale = 0.75;
+        }
+        await loadTexture(imgName, new THREE.Vector3(imgx, imgy, imgz), scale);
         imgx += 10;
+        
     }
 }
 await loadImages();
@@ -83,7 +104,7 @@ loader.load( '../static/helvetiker_regular.typeface.json', function ( font ) {
 
 
 //https://threejs.org/examples/?q=water#webgl_shaders_ocean
-const water = new Water(new THREE.PlaneGeometry( 10000, 10000 ), waterOpts);
+const water = new Water(new THREE.PlaneGeometry( 1000, 1000 ), waterOpts);
 water.rotation.x = - Math.PI / 2;
 scene.add( water );
 
@@ -133,8 +154,8 @@ function animate() {
     if (waterText !== undefined) {
         waterText.material.uniforms['time'].value += 1.0 / 360.0;
     }
-    sunParams.elevation += 1.0 / 5000.0;
-    updateSun();
+    //sunParams.elevation += 1.0 / 5000.0;
+    //updateSun();
 
     renderer.render( scene, camera );
 };
