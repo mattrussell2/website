@@ -8,6 +8,7 @@ import { Water } from './three/Water';
 import { Sky } from './three/Sky';
 import { Interaction } from 'three.interaction/src/index.js'; 
 import { CSS3DObject } from './three/CSS3DRenderer.js';
+var sigmoid = require('sigmoid');
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -135,6 +136,12 @@ const waterOpts = {
     fog: scene.fog !== undefined, 
 }
 
+function make_cube_side_material(location) {
+    const texture= new THREE.TextureLoader().load( location );
+    texture.minFilter = THREE.LinearFilter;
+    return new THREE.MeshBasicMaterial( { map: texture } );
+}
+
 function initHeader(box, i) {
     box.on('click', function(ev) {
         switch (headerTxt[i]) {
@@ -158,41 +165,39 @@ function initHeader(box, i) {
                     cube.rotation.z = THREE.MathUtils.degToRad(45);
                 } else {
                     // create a cube in the center of the screen with one project on each side
-                    var textureRight = new THREE.TextureLoader().load( '../static/gradescope_autograder_pic.png' );
-                    textureRight.minFilter = THREE.LinearFilter;
-                    var materialRight = new THREE.MeshBasicMaterial( { map: textureRight } );
-                    var textureLeft = new THREE.TextureLoader().load('../static/unit_test_pic.png');
-                    textureLeft.minFilter = THREE.LinearFilter;
-                    var materialLeft = new THREE.MeshBasicMaterial( { map: textureLeft } );
+                    var matGS = make_cube_side_material('../static/gradescope_autograder_pic.png' );
+                    var matUT = make_cube_side_material('../static/unit_test_pic.png');
+                    var matBACK = make_cube_side_material('../static/backgammon.png');
+                    var matCR = make_cube_side_material('../static/cuda_raytracer.png');
                     cube = new THREE.Mesh(new THREE.BoxGeometry(boxSize, boxSize, boxSize, 1, 1, 1),
-                                        [new THREE.MeshBasicMaterial( { color: 0x00f000, transparent:false, opacity:0.5 }),
-                                        materialLeft,
-                                        new THREE.MeshBasicMaterial( { color: 0x0000f0, transparent:false, opacity:0.5 }),
-                                        new THREE.MeshBasicMaterial( { color: 0xffffff, transparent:false, opacity:0.5 }),
-                                        materialRight,
-                                        materialRight])
-                    cube.position.set(0, yCurr + d/3, 30);
+                                        [matBACK, matUT, matCR, matUT, matGS, matGS])
+                    cube.position.set(0, yCurr + d/3, 20);
                     cube.rotation.y = THREE.MathUtils.degToRad(55);
                     cube.rotation.z = THREE.MathUtils.degToRad(45);
+                    cube.cursor = 'pointer';
                     cube.on('click', function(ev) {
-                        // cube.scale.set(1/2, 1/2, 1/2);
-                        // cube.rotation.y = 0;
-                        // cube.rotation.z = 0;
-                        // cube.position.set(w/2, yCurr + d/3, 30);
-                        
-                        //  2-3 left, 4-5 top, 8-9 right
+                        console.log(ev.intersects[0].faceIndex);
                         switch (ev.intersects[0].faceIndex) {
+                            case 0: 
+                            case 1: 
+                                window.open('https://www.github.com/mattrussell2/backgammon', '_blank');
                             case 2:
                             case 3:
+                            case 6:
+                            case 7:
                                 window.open('https://www.github.com/mattrussell2/vscode-cpp-unit-test', '_blank');
                                 break;
                             case 4:
                             case 5:
+                                window.open('https://www.github.com/mattrussell2/cuda_raytracer', '_blank');
                                 console.log('top');
                                 break;
                             case 8:
                             case 9:
+                            case 10:
+                            case 11:
                                 console.log('right');
+                                window.open('https://gitlab.cs.tufts.edu/mrussell/gradescope-autograding', '_blank');
                                 break;
                         }
                     });
@@ -244,7 +249,7 @@ function buildheader(hlst, htype){
                                     {
                                         font: fnt,
                                         size: headerSize,
-                                        height: 1,
+                                        height: 0.5,
                                         curveSegments: 12
                                     });
         textGeo.computeBoundingBox();
@@ -320,7 +325,7 @@ function loadText() {
         nameText = new Water(textGeo, waterOpts);
         nameText.position.set(ledge + 2, 5, z);
         scene.add(nameText); 
-        if (textGeo.boundingBox.max.x >= w*.4) {
+        if (textGeo.boundingBox.max.x >= w*.33) {
             nameSize *= .8;
             loadText();
             return;
@@ -393,7 +398,9 @@ function animate() {
     for (let header of headers) {
         header[0].material.uniforms['time'].value += 1.0 / 360.0;
     }
-
+    if (cube !== undefined) {
+        cube.rotation.y += 1/100;  //= THREE.MathUtils.degToRad(55);
+    }
     renderer.render( scene, camera );
 };
 
