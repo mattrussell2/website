@@ -32,11 +32,15 @@ var nameSize = 7;
 var headerSize = 2;
 var plCubeDim = 4;
 
+//var video;
+var cube;
+
 const headerTxt = ['about', 'projects', 'teaching', 'research', 'contact', 'resume'];
 
 const allHeaders = {
                     'main': ['about', 'projects', 'teaching', 'research', 'contact', 'resume'],
-                    'projects': ['unit_test', 'gradescope_autograding', 'rasterized_shapes']
+                    'projects': ['unit_test', 'gradescope_autograding', 'rasterized_shapes'],
+                    'unit_test': ['github']
                    }
 
 window.addEventListener( 'resize', onWindowResize ); 
@@ -137,56 +141,63 @@ function initHeader(box, i) {
             case 'about':
                 break;
             case 'projects':
-
+                // if (video !== undefined) {
+                //     video.style.visibility = "hidden";
+                // }
+                
                 const h = visibleHeightAtZDepth(30, camera);
                 const w = visibleWidthAtZDepth(30, camera);
                 const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
                 const d = h - yCurr - 15;
-                
-                buildheader(pjHeaders, 'projects');
-
-                // create a cube in the center of the screen with one project on each side
-                const cube = new THREE.Mesh(new THREE.BoxGeometry(w/2, d-5, w/2),
-                                            new THREE.MeshBasicMaterial( { color: 0xf00000, transparent:false, opacity:0.5 }));
-                cube.position.set(0, yCurr + d/2, 30);
-                cube.rotation.y = 10;
-                cube.rotation.z = 10;
-                scene.add(cube);
-                break;
-                
-                const video = document.createElement('video');
-                video.id = 'vscode_unit_test_video';
-                video.src = '../static/vscode_unit_test.mov';
-                video.controls = false;
-                video.muted = true;
-                video.width = window.innerWidth * .65; // in px
-                video.height = video.width * .75; // in px
-                console.log(w);
-                video.style.position = 'absolute';
-                video.style.top = 0;
-                video.style.left = (window.innerWidth/2-video.width/2).toString() + 'px';
-                document.body.appendChild(video);
-                video.play();
-                //console.log(video.style.left);
-                // const p = document.createElement('div');
-                // p.innerHTML = "<p>Hello, world!<br><br><br>Thisisatest</p>";
-                // p.style.position = 'relative';
-                // p.style.top = '0';
-                // p.style.left = '0';
-                // p.style.width = '100%';
-                // p.style.height = '100%';
-                // p.style.display = 'flex';
-                // p.style.alignItems = 'flex-start';
-                // p.style.justifyContent = 'flex-start';
-                // p.style.flexWrap = 'wrap';
-                // document.body.appendChild(p);
-
-                // // Position the HTML element in 3D space
-                // const position = new THREE.Vector3(yCurr + d/2.0 + 1, 30);
-                // const cssObject = new CSS3DObject(p);
-                // cssObject.position.set(position);
-                // scene.add(cssObject);
-                
+                const boxSize = (h < w ? h : w) / 2.5;
+                if (cube !== undefined) {
+                    cube.visible = true;
+                    cube.position.set(0, yCurr + d/3, 30);
+                    cube.scale.set(1, 1, 1); 
+                    cube.rotation.y = THREE.MathUtils.degToRad(55);
+                    cube.rotation.z = THREE.MathUtils.degToRad(45);
+                } else {
+                    // create a cube in the center of the screen with one project on each side
+                    var textureRight = new THREE.TextureLoader().load( '../static/gradescope_autograder_pic.png' );
+                    textureRight.minFilter = THREE.LinearFilter;
+                    var materialRight = new THREE.MeshBasicMaterial( { map: textureRight } );
+                    var textureLeft = new THREE.TextureLoader().load('../static/unit_test_pic.png');
+                    textureLeft.minFilter = THREE.LinearFilter;
+                    var materialLeft = new THREE.MeshBasicMaterial( { map: textureLeft } );
+                    cube = new THREE.Mesh(new THREE.BoxGeometry(boxSize, boxSize, boxSize, 1, 1, 1),
+                                        [new THREE.MeshBasicMaterial( { color: 0x00f000, transparent:false, opacity:0.5 }),
+                                        materialLeft,
+                                        new THREE.MeshBasicMaterial( { color: 0x0000f0, transparent:false, opacity:0.5 }),
+                                        new THREE.MeshBasicMaterial( { color: 0xffffff, transparent:false, opacity:0.5 }),
+                                        materialRight,
+                                        materialRight])
+                    cube.position.set(0, yCurr + d/3, 30);
+                    cube.rotation.y = THREE.MathUtils.degToRad(55);
+                    cube.rotation.z = THREE.MathUtils.degToRad(45);
+                    cube.on('click', function(ev) {
+                        // cube.scale.set(1/2, 1/2, 1/2);
+                        // cube.rotation.y = 0;
+                        // cube.rotation.z = 0;
+                        // cube.position.set(w/2, yCurr + d/3, 30);
+                        
+                        //  2-3 left, 4-5 top, 8-9 right
+                        switch (ev.intersects[0].faceIndex) {
+                            case 2:
+                            case 3:
+                                window.open('https://www.github.com/mattrussell2/vscode-cpp-unit-test', '_blank');
+                                break;
+                            case 4:
+                            case 5:
+                                console.log('top');
+                                break;
+                            case 8:
+                            case 9:
+                                console.log('right');
+                                break;
+                        }
+                    });
+                    scene.add(cube);
+                }
                 break;
             case 'teaching':
                 break;
@@ -204,7 +215,6 @@ function initHeader(box, i) {
 }
 
 function buildheader(hlst, htype){
-    console.log(htype);
     let y;
     let headerSpace;
     let or;
@@ -223,7 +233,6 @@ function buildheader(hlst, htype){
         or = 'vert';
     }
     const headerTxt = allHeaders[htype];
-    console.log(headerTxt);
     for (let header of hlst) {
         for (let h of header) {
             scene.remove(h);
@@ -231,7 +240,6 @@ function buildheader(hlst, htype){
     }
     hlst.length = 0;
     for (let header of headerTxt) {
-        console.log(header);
         let textGeo = new TextGeometry( header, 
                                     {
                                         font: fnt,
@@ -260,8 +268,6 @@ function buildheader(hlst, htype){
     pos.z = z;
     for (let [i, header] of hlst.entries()) {
         header[0].position.set(pos.x, pos.y, pos.z);
-        console.log(header[0].position);
-       
         const box = new THREE.Mesh(new THREE.BoxGeometry(header[0].geometry.boundingBox.max.x, header[0].geometry.boundingBox.max.y, 0), 
                                    new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
         box.position.set(pos.x, pos.y, pos.z); 
@@ -274,7 +280,6 @@ function buildheader(hlst, htype){
             box.position.y += header[0].geometry.boundingBox.max.y / 2;
             box.position.z += 1.5;
         }
-        console.log(box.position);
         box.cursor = 'pointer';
         initHeader(box, i);
         scene.add(box);
@@ -286,7 +291,6 @@ function buildheader(hlst, htype){
         }
     }
     if (headerSpace <= 5) {
-        console.log('recursing');
         headerSize /= 2;
         loadText();
         return;
@@ -394,3 +398,27 @@ function animate() {
 };
 
 animate();
+
+// legacy code for video display if needed later.
+//buildheader(pjHeaders, 'unit_test');
+//cube.visible = false;
+// if (video !== undefined) {
+//     video.style.visibility = "visible";
+// }else {
+//     video = document.createElement('video');
+//     video.id = 'vscode_unit_test_video';
+//     video.src = '../static/vscode_unit_test_video.mov';
+//     video.controls = false;
+//     video.muted = true;
+//     video.width = .50 * window.innerWidth; // in px
+//     video.height = video.width * .75; // in px
+//     video.style.position = 'absolute';
+//     video.style.top = (.01 * window.innerHeight).toString() + 'px';
+//     console.log((.01 * window.innerHeight));
+//     video.style.left = (window.innerWidth/2-video.width/2).toString() + 'px';
+//     video.defaultPlaybackRate = 0.5;
+//     document.body.appendChild(video);
+//     video.onclick = function() {
+//         video.play(); 
+//     }
+// }
