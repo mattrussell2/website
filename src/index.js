@@ -1,13 +1,13 @@
 require('file-loader?name=[name].[ext]!./index.html');
+
 import * as THREE from 'three';
 
 import { FontLoader } from './three/FontLoader';
 import { TextGeometry } from './three/TextGeometry';
 import { Water } from './three/Water';
 import { Sky } from './three/Sky';
-
-import { SVGLoader } from './three/SVGLoader.js';
 import { Interaction } from 'three.interaction/src/index.js'; 
+import { CSS3DObject } from './three/CSS3DRenderer.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -25,11 +25,19 @@ const interaction = new Interaction(renderer, scene, camera);
 
 var nameText;
 var headers = [];
+var pjHeaders = [];
 var plBoxes = [];
 
 var nameSize = 7;
 var headerSize = 2;
 var plCubeDim = 4;
+
+const headerTxt = ['about', 'projects', 'teaching', 'research', 'contact', 'resume'];
+
+const allHeaders = {
+                    'main': ['about', 'projects', 'teaching', 'research', 'contact', 'resume'],
+                    'projects': ['unit_test', 'gradescope_autograding', 'rasterized_shapes']
+                   }
 
 window.addEventListener( 'resize', onWindowResize ); 
 function onWindowResize() {
@@ -123,16 +131,180 @@ const waterOpts = {
     fog: scene.fog !== undefined, 
 }
 
+function initHeader(box, i) {
+    box.on('click', function(ev) {
+        switch (headerTxt[i]) {
+            case 'about':
+                break;
+            case 'projects':
+
+                const h = visibleHeightAtZDepth(30, camera);
+                const w = visibleWidthAtZDepth(30, camera);
+                const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
+                const d = h - yCurr - 15;
+                
+                buildheader(pjHeaders, 'projects');
+
+                // create a cube in the center of the screen with one project on each side
+                const cube = new THREE.Mesh(new THREE.BoxGeometry(w/2, d-5, w/2),
+                                            new THREE.MeshBasicMaterial( { color: 0xf00000, transparent:false, opacity:0.5 }));
+                cube.position.set(0, yCurr + d/2, 30);
+                cube.rotation.y = 10;
+                cube.rotation.z = 10;
+                scene.add(cube);
+                break;
+                
+                const video = document.createElement('video');
+                video.id = 'vscode_unit_test_video';
+                video.src = '../static/vscode_unit_test.mov';
+                video.controls = false;
+                video.muted = true;
+                video.width = window.innerWidth * .65; // in px
+                video.height = video.width * .75; // in px
+                console.log(w);
+                video.style.position = 'absolute';
+                video.style.top = 0;
+                video.style.left = (window.innerWidth/2-video.width/2).toString() + 'px';
+                document.body.appendChild(video);
+                video.play();
+                //console.log(video.style.left);
+                // const p = document.createElement('div');
+                // p.innerHTML = "<p>Hello, world!<br><br><br>Thisisatest</p>";
+                // p.style.position = 'relative';
+                // p.style.top = '0';
+                // p.style.left = '0';
+                // p.style.width = '100%';
+                // p.style.height = '100%';
+                // p.style.display = 'flex';
+                // p.style.alignItems = 'flex-start';
+                // p.style.justifyContent = 'flex-start';
+                // p.style.flexWrap = 'wrap';
+                // document.body.appendChild(p);
+
+                // // Position the HTML element in 3D space
+                // const position = new THREE.Vector3(yCurr + d/2.0 + 1, 30);
+                // const cssObject = new CSS3DObject(p);
+                // cssObject.position.set(position);
+                // scene.add(cssObject);
+                
+                break;
+            case 'teaching':
+                break;
+            case 'research':
+                break;
+            case 'contact':
+                const mail = document.createElement("a");
+                mail.href = "mailto:mrussell@cs.tufts.edu";
+                mail.click();
+                break;
+            case 'resume':
+                break;
+        }
+    });
+}
+
+function buildheader(hlst, htype){
+    console.log(htype);
+    let y;
+    let headerSpace;
+    let or;
+    const z = 30;
+    const w = visibleWidthAtZDepth(z, camera);
+    const ledge = -(w / 2);
+    if (htype == 'main') {
+        y = 1;
+        headerSpace = visibleWidthAtZDepth(z, camera);
+        or = 'horz';
+    } else {
+        const h = visibleHeightAtZDepth(30, camera);
+        const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
+        headerSpace = h - yCurr - 15;
+        y = yCurr + 1;
+        or = 'vert';
+    }
+    const headerTxt = allHeaders[htype];
+    console.log(headerTxt);
+    for (let header of hlst) {
+        for (let h of header) {
+            scene.remove(h);
+        }
+    }
+    hlst.length = 0;
+    for (let header of headerTxt) {
+        console.log(header);
+        let textGeo = new TextGeometry( header, 
+                                    {
+                                        font: fnt,
+                                        size: headerSize,
+                                        height: 1,
+                                        curveSegments: 12
+                                    });
+        textGeo.computeBoundingBox();
+        const headerOpts = waterOpts;
+        headerOpts.waterColor = 0x0000ff;
+        let text = new Water(textGeo, waterOpts);
+        scene.add(text); 
+        text.cursor = 'pointer';
+        hlst.push([text]);
+        headerSpace -= or === 'horz' ? textGeo.boundingBox.max.x : textGeo.boundingBox.max.y;
+    }
+    let headerDelta = headerSpace / headerTxt.length;
+    let pos = new THREE.Vector3;
+    if (or == 'horz') {
+        pos.x = ledge + headerDelta / 2;
+        pos.y = y;
+    }else {
+        pos.x = ledge;
+        pos.y = y + headerDelta / 2;
+    }
+    pos.z = z;
+    for (let [i, header] of hlst.entries()) {
+        header[0].position.set(pos.x, pos.y, pos.z);
+        console.log(header[0].position);
+       
+        const box = new THREE.Mesh(new THREE.BoxGeometry(header[0].geometry.boundingBox.max.x, header[0].geometry.boundingBox.max.y, 0), 
+                                   new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
+        box.position.set(pos.x, pos.y, pos.z); 
+        if (or === 'horz') {
+            box.position.x += header[0].geometry.boundingBox.max.x / 2;
+            box.position.y += 1;
+            box.position.z += 1.5;
+        }else {
+            box.position.x += 1;
+            box.position.y += header[0].geometry.boundingBox.max.y / 2;
+            box.position.z += 1.5;
+        }
+        console.log(box.position);
+        box.cursor = 'pointer';
+        initHeader(box, i);
+        scene.add(box);
+        header.push(box);
+        if (or === 'horz') {    
+            pos.x += headerDelta + header[0].geometry.boundingBox.max.x;
+        }else {
+            pos.y += headerDelta + header[0].geometry.boundingBox.max.y;
+        }
+    }
+    if (headerSpace <= 5) {
+        console.log('recursing');
+        headerSize /= 2;
+        loadText();
+        return;
+    }
+}
+
+var fnt;
 function loadText() {
     const loader = new FontLoader();
-    loader.load( '../static/helvetiker_regular.typeface.json', function ( font ) {
+    loader.load( '../static/helvetiker_regular.typeface.json', function ( f ) {
+        fnt = f;
         if (nameText !== undefined) {
             scene.remove(nameText);
         }
 
         let textGeo = new TextGeometry('matt russell', 
                                         {
-                                            font: font,
+                                            font: fnt,
                                             size: nameSize,
                                             height: 1,
                                             curveSegments: 12
@@ -149,54 +321,7 @@ function loadText() {
             loadText();
             return;
         }
-        
-        for (let header of headers) {
-            for (let h of header) {
-                scene.remove(h);
-            }
-        }
-        headers = [];
-        const y = 1;
-        let headerSpace = w;
-        const headerTxt = ['about', 'projects', 'teaching', 'research', 'contact', 'resume'];
-        for (let header of headerTxt) {
-            textGeo = new TextGeometry( header, 
-                                        {
-                                            font: font,
-                                            size: headerSize,
-                                            height: 1,
-                                            curveSegments: 12
-                                        });
-            textGeo.computeBoundingBox();
-            const headerOpts = waterOpts;
-            headerOpts.waterColor = 0x0000ff;
-            let text = new Water(textGeo, waterOpts);
-            scene.add(text); 
-            text.cursor = 'pointer';
-            // text.on('click', function(ev) {console.log("yeeeeeeeeet")});  
-            headers.push([text]);
-            console.log(headers);
-            headerSpace -= textGeo.boundingBox.max.x;
-        }
-        let headerDelta = headerSpace / headerTxt.length;
-        let x = ledge + headerDelta / 2;
-        for (let header of headers) {
-            header[0].position.set(x, y, z);
-            // add a transparent bounding box for each header
-            const box = new THREE.Mesh(new THREE.BoxGeometry(header[0].geometry.boundingBox.max.x, header[0].geometry.boundingBox.max.y, 0), 
-                                       new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
-            box.position.set(x + header[0].geometry.boundingBox.max.x / 2, y+1, z+1.5);
-            box.cursor = 'pointer'
-            box.on('click', function(ev) {console.log("yeeeeeeeeet")});
-            scene.add(box);
-            header.push(box);
-            x += headerDelta + header[0].geometry.boundingBox.max.x;
-        }
-        if (headerSpace <= 5) {
-            headerSize /= 2;
-            loadText();
-            return;
-        }
+        buildheader(headers, 'main');
     });
 }
 
