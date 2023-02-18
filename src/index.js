@@ -7,59 +7,33 @@ import { TextGeometry } from './three/TextGeometry';
 import { Water } from './three/Water';
 import { Sky } from './three/Sky';
 import { Interaction } from 'three.interaction/src/index.js'; 
-import { CSS3DObject } from './three/CSS3DRenderer.js';
-var sigmoid = require('sigmoid');
+import { CSS3DObject, CSS3DRenderer } from './three/CSS3DRenderer.js';
+
 
 const scene = new THREE.Scene();
+const cssScene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+camera.position.set( 0, 20, 100 );
 
-const CAMX = 0;
-const CAMY = 20; 
-const CAMZ = 100;
-camera.position.set( CAMX, CAMY, CAMZ );
-
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({antialias: true});
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+const cssRenderer = new CSS3DRenderer();
+cssRenderer.setSize( window.innerWidth, window.innerHeight );
+cssRenderer.domElement.style.position = 'absolute';
+cssRenderer.domElement.style.top = 0;
+cssRenderer.domElement.style.pointerEvents = 'none';
+document.body.appendChild( cssRenderer.domElement );
+
+// for mouse interaction
 const interaction = new Interaction(renderer, scene, camera);
 
-var nameText;
-var headers = [];
-var pjHeaders = [];
-var plBoxes = [];
 
-var nameSize = 7;
-var headerSize = 2;
-var plCubeDim = 4;
-
-//var video;
-var cube;
-
-const headerTxt = ['about', 'projects', 'teaching', 'research', 'contact', 'resume'];
-
-const allHeaders = {
-                    'main': ['about', 'projects', 'teaching', 'research', 'contact', 'resume'],
-                    'projects': ['unit_test', 'gradescope_autograding', 'rasterized_shapes'],
-                    'unit_test': ['github']
-                   }
-
-window.addEventListener( 'resize', onWindowResize ); 
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    nameSize = 7;
-    headerSize = 2;
-    plCubeDim = 4;
-    loadImages();
-    loadText();
-}
-
-/*
- * Given a depth, return the height/width of the visible area
- * https://discourse.threejs.org/t/functions-to-calculate-the-visible-width-height-at-a-given-z-depth-from-a-perspective-camera/269
- */
+// /*
+//  * Given a depth, return the height/width of the visible area
+//  * https://discourse.threejs.org/t/functions-to-calculate-the-visible-width-height-at-a-given-z-depth-from-a-perspective-camera/269
+//  */
 const visibleHeightAtZDepth = ( depth, camera ) => {
     // compensate for cameras not positioned at z=0
     const cameraOffset = camera.position.z;
@@ -74,61 +48,41 @@ const visibleHeightAtZDepth = ( depth, camera ) => {
 };
   
 const visibleWidthAtZDepth = ( depth, camera ) => {
-    const height = visibleHeightAtZDepth( depth, camera );
-    return height * camera.aspect;
+    return visibleHeightAtZDepth( depth, camera ) * camera.aspect;
 };
 
-/*
- * Load the programming language images
- */
-const logopath = '../static/logos/';
-function loadTexture(imgName, imgx, imgy, imgz) {
-    const texture = new THREE.TextureLoader().load(logopath + imgName);
-    const cube = new THREE.Mesh(new THREE.BoxGeometry(plCubeDim, plCubeDim, 0),
-                                new THREE.MeshBasicMaterial( { map: texture, transparent:true }));
-    cube.position.set(imgx, imgy, imgz);
-    scene.add(cube);
-    plBoxes.push(cube);
-}
+var w = visibleWidthAtZDepth(30, camera);
+var h = visibleHeightAtZDepth(30, camera);
+const z = 30;
+var ledge = -w / 2;
 
-function loadImages() {
-    for (let plBox of plBoxes) {
-        scene.remove(plBox);
-    }
-    plBoxes = [];
+var textBoxWidth = w * .9;
+var textBoxHeight = w * .45;
 
-    let pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'javascript-original.svg', 'java-original.svg',
-                  'bash-original.svg', 'matlab-plain.svg', 'docker-original.svg', 
-                  'digitalocean-original.svg', 'heroku-original.svg',
-                  'git-original.svg', 'github-original.svg', 'gitlab-original.svg', 
-                  'linux-plain.svg', 
-                  'pandas-original.svg', 'postgresql-original.svg', 'threejs-original.svg'];
-    let imgz = 50;
+const textBox = document.createElement( 'div' );
+textBox.style.width = `${textBoxWidth}px`;
+textBox.style.height = `${textBoxHeight}px`;
+textBox.style.color = '#657b83';
+textBox.style.fontSize = '2px';
+textBox.style.overflow = 'auto';
+textBox.style.scrollbarWidth = 'none';
+textBox.style.borderRadius = '1px';
+textBox.style.overflowY = 'scroll';
+textBox.style.padding = '0.25em';
+textBox.style.backgroundColor = '#073642';
+textBox.style.opacity = 1;
 
-    const w = visibleWidthAtZDepth(imgz, camera);
-    const wDelta = w / pgimgs.length;
-    if (wDelta <= plCubeDim*.95) {
-        plCubeDim *= .85;
-        loadImages();
-        return;
-    }
-
-    const ledge = -(w / 2) + wDelta / 2.0;
-    let imgx = ledge;
-    let imgy = 2;
-    
-    for (let imgName of pgimgs) {
-        loadTexture(imgName, imgx, imgy, imgz);
-        imgx += wDelta;
-    }
-}
+const objectCSS = new CSS3DObject( textBox );
+objectCSS.position.x = 0;
+objectCSS.position.y = h / 2;
+objectCSS.position.z = 30;
+objectCSS.visible = false;
+cssScene.add( objectCSS );
 
 const waterOpts = {
     textureWidth: 512,
     textureHeight: 512,
-    waterNormals: new THREE.TextureLoader().load( '../static/waternormals.jpeg', function ( texture ) {
-        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    }),
+    waterNormals: new THREE.TextureLoader().load( '../static/waternormals.jpeg', tex => tex.wrapS = tex.wrapT = THREE.RepeatWrapping ),
     sunDirection: new THREE.Vector3(),
     sunColor: 0xffffff,
     waterColor: 0x0ffff,
@@ -136,77 +90,143 @@ const waterOpts = {
     fog: scene.fog !== undefined, 
 }
 
-function make_cube_side_material(location) {
-    const texture= new THREE.TextureLoader().load( location );
+const researchText = `I work in the Human-Computer Interaction Lab at Tufts University. We study implicit Brain-Computer interfaces. Specifically, I have developed and run human subject studies using functional near-infrared spectroscopy (fNIRS) and/or electroencephalography (EEG) to measure brain activity, and to adapt a user's interface to better help the user based on brain state. 
+<br><br>
+Since arriving at Tufts, I have been a part of the following papers:
+<br><br>
+A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). https://www.mdpi.com/2304-6732/6/3/90
+<br><br>
+T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management,” Proc. Tenth Augmented Human International Conference (2019). http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf
+<br><br>
+L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). http://www.samulus.com/public/papers/NeuralCorrelatesofMindfulness.pdf`
+
+const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'javascript-original.svg', 'java-original.svg',
+                'bash-original.svg', 'matlab-plain.svg', 'docker-original.svg', 
+                'digitalocean-original.svg', 'heroku-original.svg', 'git-original.svg', 
+                'github-original.svg', 'gitlab-original.svg', 'linux-plain.svg',
+                'pandas-original.svg', 'postgresql-original.svg', 'threejs-original.svg'];
+
+const logopath = '../static/logos/';
+
+var nameText;
+var headers = [];
+var plBoxes = [];
+
+var nameSize = 7;
+var headerSize = 2;
+var plCubeDim = 4;
+
+var cube;
+
+const headerTxt = ['about', 'projects', 'teaching', 'research', 'contact', 'resume'];
+
+window.addEventListener( 'resize', onWindowResize ); 
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    nameSize = 7;
+    headerSize = 2;
+    plCubeDim = 4;
+    loadImages();
+    loadText();
+}
+
+function make_image_material(fname) {
+    const texture = new THREE.TextureLoader().load( '../static/' + fname );
     texture.minFilter = THREE.LinearFilter;
     return new THREE.MeshBasicMaterial( { map: texture } );
 }
 
+function initCube() {
+    const imgFiles = [ 'gradescope_autograder_pic.png', 'unit_test_pic.png', 'backgammon.png', 'cuda_raytracer.png' ];
+    const imgMats = imgFiles.map( fname => make_image_material(fname) );
+    const boxSize = (h < w ? h : w) / 3;
+    cube = new THREE.Mesh(
+                            new THREE.BoxGeometry( boxSize, boxSize, boxSize, 1, 1, 1 ), 
+                            [ imgMats[2], imgMats[1], imgMats[3], imgMats[1], imgMats[0], imgMats[0] ]
+                         );     
+    cube.visible = false;
+    cube.cursor = 'pointer';
+    cube.on('click', function(ev) {
+        console.log(ev.intersects[0].faceIndex);
+        switch (ev.intersects[0].faceIndex) {
+            case 0: 
+            case 1: 
+                window.open('https://www.github.com/mattrussell2/backgammon', '_blank');
+                break;
+            case 2:
+            case 3:
+            case 6:
+            case 7:
+                window.open('https://www.github.com/mattrussell2/vscode-cpp-unit-test', '_blank');
+                break;
+            case 4:
+            case 5:
+                window.open('https://www.github.com/mattrussell2/cuda_raytracer', '_blank');
+                break;
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                window.open('https://gitlab.cs.tufts.edu/mrussell/gradescope-autograding', '_blank');
+                break;
+        }
+    });
+    scene.add(cube);
+}
+
+/*
+ * Load the programming language images
+ */
+function loadTexture(imgName, imgx, imgy, imgz) {
+    const texture = new THREE.TextureLoader().load( logopath + imgName );
+    const cube = new THREE.Mesh(
+                                new THREE.BoxGeometry( plCubeDim, plCubeDim, 0 ),
+                                new THREE.MeshBasicMaterial( { map: texture, transparent:true } )
+                                );
+    cube.position.set( imgx, imgy, imgz );
+    scene.add( cube );
+    plBoxes.push( cube );
+}
+
+function loadImages() {
+    plBoxes.forEach( plBox => scene.remove( plBox ) );
+    plBoxes = [];
+    
+    const imgy = 2;
+    const imgz = 50;
+    const imgw = visibleWidthAtZDepth( imgz, camera );
+    const wDelta = imgw / pgimgs.length;
+    while ( wDelta <= plCubeDim * .95 ) {
+        plCubeDim *= .85;
+    }
+
+    pgimgs.forEach( (imgName, i) => loadTexture( imgName, -imgw / 2.0 + wDelta / 2.0 + wDelta * i, imgy, imgz ) );
+}
+
 function initHeader(box, i) {
-    box.on('click', function(ev) {
-        switch (headerTxt[i]) {
+    box.on( 'click', function(ev) {
+        objectCSS.visible = false;
+        cube.visible = false;
+        switch ( headerTxt[i] ) {
             case 'about':
                 break;
-            case 'projects':
-                // if (video !== undefined) {
-                //     video.style.visibility = "hidden";
-                // }
-                
-                const h = visibleHeightAtZDepth(30, camera);
-                const w = visibleWidthAtZDepth(30, camera);
+            case 'projects':                
                 const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
                 const d = h - yCurr - 15;
-                const boxSize = (h < w ? h : w) / 2.5;
-                if (cube !== undefined) {
-                    cube.visible = true;
-                    cube.position.set(0, yCurr + d/3, 30);
-                    cube.scale.set(1, 1, 1); 
-                    cube.rotation.y = THREE.MathUtils.degToRad(55);
-                    cube.rotation.z = THREE.MathUtils.degToRad(45);
-                } else {
-                    // create a cube in the center of the screen with one project on each side
-                    var matGS = make_cube_side_material('../static/gradescope_autograder_pic.png' );
-                    var matUT = make_cube_side_material('../static/unit_test_pic.png');
-                    var matBACK = make_cube_side_material('../static/backgammon.png');
-                    var matCR = make_cube_side_material('../static/cuda_raytracer.png');
-                    cube = new THREE.Mesh(new THREE.BoxGeometry(boxSize, boxSize, boxSize, 1, 1, 1),
-                                        [matBACK, matUT, matCR, matUT, matGS, matGS])
-                    cube.position.set(0, yCurr + d/3, 20);
-                    cube.rotation.y = THREE.MathUtils.degToRad(55);
-                    cube.rotation.z = THREE.MathUtils.degToRad(45);
-                    cube.cursor = 'pointer';
-                    cube.on('click', function(ev) {
-                        console.log(ev.intersects[0].faceIndex);
-                        switch (ev.intersects[0].faceIndex) {
-                            case 0: 
-                            case 1: 
-                                window.open('https://www.github.com/mattrussell2/backgammon', '_blank');
-                            case 2:
-                            case 3:
-                            case 6:
-                            case 7:
-                                window.open('https://www.github.com/mattrussell2/vscode-cpp-unit-test', '_blank');
-                                break;
-                            case 4:
-                            case 5:
-                                window.open('https://www.github.com/mattrussell2/cuda_raytracer', '_blank');
-                                console.log('top');
-                                break;
-                            case 8:
-                            case 9:
-                            case 10:
-                            case 11:
-                                console.log('right');
-                                window.open('https://gitlab.cs.tufts.edu/mrussell/gradescope-autograding', '_blank');
-                                break;
-                        }
-                    });
-                    scene.add(cube);
-                }
+                cube.position.set(0, yCurr + d/3, 30);
+                cube.scale.set(1, 1, 1); 
+                cube.rotation.y = THREE.MathUtils.degToRad(55);
+                cube.rotation.z = THREE.MathUtils.degToRad(45);
+                cube.visible = true;
                 break;
             case 'teaching':
                 break;
             case 'research':
+                textBox.innerHTML = researchText;
+                objectCSS.visible = true;
                 break;
             case 'contact':
                 const mail = document.createElement("a");
@@ -214,36 +234,25 @@ function initHeader(box, i) {
                 mail.click();
                 break;
             case 'resume':
+                window.open('../static/resume.pdf', '_blank');
                 break;
         }
     });
 }
 
-function buildheader(hlst, htype){
-    let y;
-    let headerSpace;
-    let or;
-    const z = 30;
-    const w = visibleWidthAtZDepth(z, camera);
-    const ledge = -(w / 2);
-    if (htype == 'main') {
-        y = 1;
-        headerSpace = visibleWidthAtZDepth(z, camera);
-        or = 'horz';
-    } else {
-        const h = visibleHeightAtZDepth(30, camera);
-        const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
-        headerSpace = h - yCurr - 15;
-        y = yCurr + 1;
-        or = 'vert';
-    }
-    const headerTxt = allHeaders[htype];
-    for (let header of hlst) {
+function buildHeader(){
+    const y = 1;
+    let headerSpace = w;
+
+    for (let header of headers) {
         for (let h of header) {
             scene.remove(h);
         }
     }
-    hlst.length = 0;
+
+    headers.length = 0;
+    const headerOpts = waterOpts;
+    headerOpts.waterColor = 0x0000ff;
     for (let header of headerTxt) {
         let textGeo = new TextGeometry( header, 
                                     {
@@ -253,47 +262,32 @@ function buildheader(hlst, htype){
                                         curveSegments: 12
                                     });
         textGeo.computeBoundingBox();
-        const headerOpts = waterOpts;
-        headerOpts.waterColor = 0x0000ff;
         let text = new Water(textGeo, waterOpts);
         scene.add(text); 
         text.cursor = 'pointer';
-        hlst.push([text]);
-        headerSpace -= or === 'horz' ? textGeo.boundingBox.max.x : textGeo.boundingBox.max.y;
+        headers.push([text]);
+        headerSpace -= textGeo.boundingBox.max.x;
     }
+
     let headerDelta = headerSpace / headerTxt.length;
     let pos = new THREE.Vector3;
-    if (or == 'horz') {
-        pos.x = ledge + headerDelta / 2;
-        pos.y = y;
-    }else {
-        pos.x = ledge;
-        pos.y = y + headerDelta / 2;
-    }
-    pos.z = z;
-    for (let [i, header] of hlst.entries()) {
-        header[0].position.set(pos.x, pos.y, pos.z);
-        const box = new THREE.Mesh(new THREE.BoxGeometry(header[0].geometry.boundingBox.max.x, header[0].geometry.boundingBox.max.y, 0), 
+    
+    pos.x = ledge + headerDelta / 2;
+    pos.y = y;
+    pos.z = 30;
+    for (let [i, header] of headers.entries()) {
+        header[0].position.set( pos.x, pos.y, pos.z );
+        const box = new THREE.Mesh(new THREE.BoxGeometry( header[0].geometry.boundingBox.max.x, header[0].geometry.boundingBox.max.y, 0 ), 
                                    new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
-        box.position.set(pos.x, pos.y, pos.z); 
-        if (or === 'horz') {
-            box.position.x += header[0].geometry.boundingBox.max.x / 2;
-            box.position.y += 1;
-            box.position.z += 1.5;
-        }else {
-            box.position.x += 1;
-            box.position.y += header[0].geometry.boundingBox.max.y / 2;
-            box.position.z += 1.5;
-        }
+        box.position.set( pos.x, pos.y, pos.z ); 
+        box.position.x += header[0].geometry.boundingBox.max.x / 2;
+        box.position.y += 1;
+        box.position.z += 1.5;
         box.cursor = 'pointer';
-        initHeader(box, i);
-        scene.add(box);
-        header.push(box);
-        if (or === 'horz') {    
-            pos.x += headerDelta + header[0].geometry.boundingBox.max.x;
-        }else {
-            pos.y += headerDelta + header[0].geometry.boundingBox.max.y;
-        }
+        initHeader( box, i );
+        scene.add( box );
+        header.push( box );
+        pos.x += headerDelta + header[0].geometry.boundingBox.max.x;
     }
     if (headerSpace <= 5) {
         headerSize /= 2;
@@ -304,36 +298,36 @@ function buildheader(hlst, htype){
 
 var fnt;
 function loadText() {
+    
     const loader = new FontLoader();
-    loader.load( '../static/helvetiker_regular.typeface.json', function ( f ) {
+    loader.load('../static/helvetiker_regular.typeface.json', function ( f ) {
         fnt = f;
         if (nameText !== undefined) {
             scene.remove(nameText);
         }
-
-        let textGeo = new TextGeometry('matt russell', 
+        let textGeo = new TextGeometry(
+                                        'matt russell', 
                                         {
                                             font: fnt,
                                             size: nameSize,
                                             height: 1,
                                             curveSegments: 12
-                                        });
+                                        }
+                                      );
         textGeo.computeBoundingBox();
-        const z = 30;
-        const w = visibleWidthAtZDepth(z, camera);
-        const ledge = -(w / 2);
-        nameText = new Water(textGeo, waterOpts);
-        nameText.position.set(ledge + 2, 5, z);
-        scene.add(nameText); 
-        if (textGeo.boundingBox.max.x >= w*.33) {
+        nameText = new Water( textGeo, waterOpts );
+        nameText.position.set( ledge + 2, 5, z );
+        scene.add( nameText ); 
+        if ( textGeo.boundingBox.max.x >= w * .33 ) {
             nameSize *= .8;
             loadText();
             return;
         }
-        buildheader(headers, 'main');
+        buildHeader();
     });
 }
 
+initCube();
 loadImages();
 loadText();
 
@@ -341,7 +335,10 @@ loadText();
  * Sun and Sky
  * https://threejs.org/examples/?q=water#webgl_shaders_ocean
  */
-const water = new Water(new THREE.PlaneGeometry( 10000, 10000 ), waterOpts);
+const water = new Water( 
+                            new THREE.PlaneGeometry( 10000, 10000 ), 
+                            waterOpts 
+                        );
 water.rotation.x = - Math.PI / 2;
 scene.add( water );
 
@@ -379,12 +376,6 @@ function updateSun() {
     scene.environment = renderTarget.texture;
 }
 
-// // add light to scene illuminating the text above the water
-// const light = new THREE.DirectionalLight( 0xffffff, 1 );
-// light.position.set( 0, 0, -1 );
-// scene.add( light );
-
-
 function animate() {
     requestAnimationFrame( animate );
 
@@ -399,33 +390,10 @@ function animate() {
         header[0].material.uniforms['time'].value += 1.0 / 360.0;
     }
     if (cube !== undefined) {
-        cube.rotation.y += 1/100;  //= THREE.MathUtils.degToRad(55);
+        cube.rotation.y += 1/100;
     }
     renderer.render( scene, camera );
+    cssRenderer.render( cssScene, camera );
 };
 
 animate();
-
-// legacy code for video display if needed later.
-//buildheader(pjHeaders, 'unit_test');
-//cube.visible = false;
-// if (video !== undefined) {
-//     video.style.visibility = "visible";
-// }else {
-//     video = document.createElement('video');
-//     video.id = 'vscode_unit_test_video';
-//     video.src = '../static/vscode_unit_test_video.mov';
-//     video.controls = false;
-//     video.muted = true;
-//     video.width = .50 * window.innerWidth; // in px
-//     video.height = video.width * .75; // in px
-//     video.style.position = 'absolute';
-//     video.style.top = (.01 * window.innerHeight).toString() + 'px';
-//     console.log((.01 * window.innerHeight));
-//     video.style.left = (window.innerWidth/2-video.width/2).toString() + 'px';
-//     video.defaultPlaybackRate = 0.5;
-//     document.body.appendChild(video);
-//     video.onclick = function() {
-//         video.play(); 
-//     }
-// }
