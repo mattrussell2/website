@@ -55,19 +55,19 @@ var w = visibleWidthAtZDepth(30, camera);
 var h = visibleHeightAtZDepth(30, camera);
 const z = 30;
 var ledge = -w / 2;
-
 var textBoxWidth = w * .9;
-var textBoxHeight = w * .45;
+var textBoxHeight = h * .6;
 
 const textBox = document.createElement( 'div' );
 textBox.style.width = `${textBoxWidth}px`;
 textBox.style.height = `${textBoxHeight}px`;
 textBox.style.color = '#657b83';
 textBox.style.fontSize = '2px';
-textBox.style.overflow = 'auto';
-textBox.style.scrollbarWidth = 'none';
-textBox.style.borderRadius = '1px';
-textBox.style.overflowY = 'scroll';
+//textBox.style.overflow = 'auto';
+//textBox.style.scrollbarWidth = 'thin';
+textBox.style.borderRadius = '1em';
+textBox.style.overflowX = 'hidden';
+textBox.style.overflowY = 'auto';
 textBox.style.padding = '0.25em';
 textBox.style.backgroundColor = '#073642';
 textBox.style.opacity = 1;
@@ -99,6 +99,8 @@ A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer I
 T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management,” Proc. Tenth Augmented Human International Conference (2019). http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf
 <br><br>
 L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). http://www.samulus.com/public/papers/NeuralCorrelatesofMindfulness.pdf`
+
+const aboutText = `Welcome. I'm Matt Russell, a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is about implicit Brain-Computer Interfaces. I'm also a teaching assistant for the computer science department, and I have taught the Data Structures course in C++.`
 
 const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'javascript-original.svg', 'java-original.svg',
                 'bash-original.svg', 'matlab-plain.svg', 'docker-original.svg', 
@@ -150,7 +152,6 @@ function initCube() {
     cube.visible = false;
     cube.cursor = 'pointer';
     cube.on('click', function(ev) {
-        console.log(ev.intersects[0].faceIndex);
         switch (ev.intersects[0].faceIndex) {
             case 0: 
             case 1: 
@@ -185,7 +186,7 @@ function loadTexture(imgName, imgx, imgy, imgz) {
     const cube = new THREE.Mesh(
                                 new THREE.BoxGeometry( plCubeDim, plCubeDim, 0 ),
                                 new THREE.MeshBasicMaterial( { map: texture, transparent:true } )
-                                );
+                               );
     cube.position.set( imgx, imgy, imgz );
     scene.add( cube );
     plBoxes.push( cube );
@@ -212,6 +213,8 @@ function initHeader(box, i) {
         cube.visible = false;
         switch ( headerTxt[i] ) {
             case 'about':
+                textBox.innerHTML = aboutText;
+                objectCSS.visible = true;
                 break;
             case 'projects':                
                 const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
@@ -240,7 +243,7 @@ function initHeader(box, i) {
     });
 }
 
-function buildHeader(){
+function buildHeader() {
     const y = 1;
     let headerSpace = w;
 
@@ -262,10 +265,10 @@ function buildHeader(){
                                         curveSegments: 12
                                     });
         textGeo.computeBoundingBox();
-        let text = new Water(textGeo, waterOpts);
-        scene.add(text); 
+        let text = new Water( textGeo, waterOpts );
+        scene.add( text ); 
         text.cursor = 'pointer';
-        headers.push([text]);
+        headers.push( [text] );
         headerSpace -= textGeo.boundingBox.max.x;
     }
 
@@ -275,7 +278,7 @@ function buildHeader(){
     pos.x = ledge + headerDelta / 2;
     pos.y = y;
     pos.z = 30;
-    for (let [i, header] of headers.entries()) {
+    for (let [ i, header ] of headers.entries()) {
         header[0].position.set( pos.x, pos.y, pos.z );
         const box = new THREE.Mesh(new THREE.BoxGeometry( header[0].geometry.boundingBox.max.x, header[0].geometry.boundingBox.max.y, 0 ), 
                                    new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
@@ -289,7 +292,7 @@ function buildHeader(){
         header.push( box );
         pos.x += headerDelta + header[0].geometry.boundingBox.max.x;
     }
-    if (headerSpace <= 5) {
+    if ( headerSpace <= 5 ) {
         headerSize /= 2;
         loadText();
         return;
@@ -300,11 +303,10 @@ var fnt;
 function loadText() {
     
     const loader = new FontLoader();
-    loader.load('../static/helvetiker_regular.typeface.json', function ( f ) {
+    loader.load( '../static/helvetiker_regular.typeface.json', function ( f ) {
         fnt = f;
-        if (nameText !== undefined) {
-            scene.remove(nameText);
-        }
+        if (nameText !== undefined) scene.remove(nameText);
+
         let textGeo = new TextGeometry(
                                         'matt russell', 
                                         {
@@ -338,7 +340,7 @@ loadText();
 const water = new Water( 
                             new THREE.PlaneGeometry( 10000, 10000 ), 
                             waterOpts 
-                        );
+                       );
 water.rotation.x = - Math.PI / 2;
 scene.add( water );
 
