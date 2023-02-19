@@ -60,11 +60,11 @@ var textBoxHeight = h * .6;
 
 const textBox = document.createElement( 'div' );
 textBox.style.width = `${textBoxWidth}px`;
-textBox.style.height = `${textBoxHeight}px`;
+textBox.style.maxHeight = `${textBoxHeight}px`;
+textBox.style.height = 'auto'; 
 textBox.style.color = '#657b83';
 textBox.style.fontSize = '2px';
-//textBox.style.overflow = 'auto';
-//textBox.style.scrollbarWidth = 'thin';
+textBox.style.scrollbarWidth = 'thin';
 textBox.style.borderRadius = '1em';
 textBox.style.overflowX = 'hidden';
 textBox.style.overflowY = 'auto';
@@ -100,7 +100,19 @@ T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Ru
 <br><br>
 L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). http://www.samulus.com/public/papers/NeuralCorrelatesofMindfulness.pdf`
 
-const aboutText = `Welcome. I'm Matt Russell, a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is about implicit Brain-Computer Interfaces. I'm also a teaching assistant for the computer science department, and I have taught the Data Structures course in C++.`
+const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is about implicit Brain-Computer Interfaces. I'm also a teaching assistant for the computer science department, and I have taught the Data Structures course in C++.
+<br><br>My hobbies include hiking, camping, rock climbing, snowboarding, chess and cooking. I'm happily married since January 2016, and have two daughers, ages 2 and 4.`
+
+const teachingText = `I have been a teaching assistant for the computer science department at Tufts University since 2016. I have ta'd the following courses: 
+<br>
+<br>CS 10: Introduction to Computer Science (Python)
+<br>CS 15: Data Structures (C++) [7 semesters]
+<br>CS 50CP: Concurrency (Erlang, Python)
+<br>CS 116: Cybersecurity 
+<br>CS 175: Computer Graphics (C++) [2 semesters]
+<br><br>
+Additionally I taught the 2020 summer session of CS 15: Data Structures (C++) at Tufts University. I am planning to teach this course in 2023 summer as well. 
+`
 
 const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'javascript-original.svg', 'java-original.svg',
                 'bash-original.svg', 'matlab-plain.svg', 'docker-original.svg', 
@@ -128,9 +140,14 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
+    w = visibleWidthAtZDepth(30, camera);
+    h = visibleHeightAtZDepth(30, camera);
     nameSize = 7;
     headerSize = 2;
     plCubeDim = 4;
+    ledge = -w / 2;
+    textBoxWidth = w * .9;
+    textBoxHeight = h * .6;
     loadImages();
     loadText();
 }
@@ -201,7 +218,7 @@ function loadImages() {
     const imgw = visibleWidthAtZDepth( imgz, camera );
     const wDelta = imgw / pgimgs.length;
     while ( wDelta <= plCubeDim * .95 ) {
-        plCubeDim *= .85;
+        plCubeDim *= .95;
     }
 
     pgimgs.forEach( (imgName, i) => loadTexture( imgName, -imgw / 2.0 + wDelta / 2.0 + wDelta * i, imgy, imgz ) );
@@ -226,6 +243,8 @@ function initHeader(box, i) {
                 cube.visible = true;
                 break;
             case 'teaching':
+                textBox.innerHTML = teachingText;
+                objectCSS.visible = true;
                 break;
             case 'research':
                 textBox.innerHTML = researchText;
@@ -292,8 +311,8 @@ function buildHeader() {
         header.push( box );
         pos.x += headerDelta + header[0].geometry.boundingBox.max.x;
     }
-    if ( headerSpace <= 5 ) {
-        headerSize /= 2;
+    if ( headerSpace <= 10 ) {
+        headerSize *= .95;
         loadText();
         return;
     }
@@ -301,7 +320,6 @@ function buildHeader() {
 
 var fnt;
 function loadText() {
-    
     const loader = new FontLoader();
     loader.load( '../static/helvetiker_regular.typeface.json', function ( f ) {
         fnt = f;
