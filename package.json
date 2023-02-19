@@ -14,7 +14,7 @@
     "webpack-dev-server": "^4.11.1"
   },
   "scripts": {
-    "build": "webpack --mode production",
-    "dev": "webpack serve"
+    "build": "webpack",
+    "dev": "node server.js",
   }
 }
