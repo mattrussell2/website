@@ -51,14 +51,14 @@ const visibleWidthAtZDepth = ( depth, camera ) => {
     return visibleHeightAtZDepth( depth, camera ) * camera.aspect;
 };
 
+const z = 30;
 var w = visibleWidthAtZDepth(30, camera);
 var h = visibleHeightAtZDepth(30, camera);
-const z = 30;
 var ledge = -w / 2;
 var textBoxWidth = w * .9;
 var textBoxHeight = h * .6;
 
-const textBox = document.createElement( 'div' );
+var textBox = document.createElement( 'div' );
 textBox.style.width = `${textBoxWidth}px`;
 textBox.style.maxHeight = `${textBoxHeight}px`;
 textBox.style.height = 'auto'; 
@@ -72,7 +72,7 @@ textBox.style.padding = '0.25em';
 textBox.style.backgroundColor = '#073642';
 textBox.style.opacity = 1;
 
-const objectCSS = new CSS3DObject( textBox );
+var objectCSS = new CSS3DObject( textBox );
 objectCSS.position.x = 0;
 objectCSS.position.y = h / 2;
 objectCSS.position.z = 30;
@@ -140,6 +140,8 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
+    cssRenderer.setSize( window.innerWidth, window.innerHeight );
+    
     w = visibleWidthAtZDepth(30, camera);
     h = visibleHeightAtZDepth(30, camera);
     nameSize = 7;
@@ -148,6 +150,11 @@ function onWindowResize() {
     ledge = -w / 2;
     textBoxWidth = w * .9;
     textBoxHeight = h * .6;
+
+    textBox.style.width = `${textBoxWidth}px`;
+    textBox.style.maxHeight = `${textBoxHeight}px`;
+    objectCSS.position.set(0, h/2, 30); 
+
     loadImages();
     loadText();
 }
@@ -169,6 +176,7 @@ function initCube() {
     cube.visible = false;
     cube.cursor = 'pointer';
     cube.on('click', function(ev) {
+
         switch (ev.intersects[0].faceIndex) {
             case 0: 
             case 1: 
@@ -224,14 +232,18 @@ function loadImages() {
     pgimgs.forEach( (imgName, i) => loadTexture( imgName, -imgw / 2.0 + wDelta / 2.0 + wDelta * i, imgy, imgz ) );
 }
 
+var currVis; 
+
 function initHeader(box, i) {
     box.on( 'click', function(ev) {
         objectCSS.visible = false;
         cube.visible = false;
+        let obj = null;
         switch ( headerTxt[i] ) {
             case 'about':
                 textBox.innerHTML = aboutText;
                 objectCSS.visible = true;
+                obj = objectCSS;
                 break;
             case 'projects':                
                 const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
@@ -241,14 +253,17 @@ function initHeader(box, i) {
                 cube.rotation.y = THREE.MathUtils.degToRad(55);
                 cube.rotation.z = THREE.MathUtils.degToRad(45);
                 cube.visible = true;
+                obj = cube;
                 break;
             case 'teaching':
                 textBox.innerHTML = teachingText;
                 objectCSS.visible = true;
+                obj = objectCSS;
                 break;
             case 'research':
                 textBox.innerHTML = researchText;
                 objectCSS.visible = true;
+                obj = objectCSS;
                 break;
             case 'contact':
                 const mail = document.createElement("a");
@@ -259,23 +274,26 @@ function initHeader(box, i) {
                 window.open('../static/resume.pdf', '_blank');
                 break;
         }
+        if ( currVis === headerTxt[i] && obj !== null) {
+            obj.visible = false;
+            currVis = null;
+        } else {
+            currVis = headerTxt[i];
+        }
     });
 }
 
-function buildHeader() {
-    const y = 1;
-    let headerSpace = w;
-
+function createHeader() {
     for (let header of headers) {
-        for (let h of header) {
-            scene.remove(h);
+        for (let obj of header) {
+            scene.remove( obj );
         }
     }
-
     headers.length = 0;
+
     const headerOpts = waterOpts;
     headerOpts.waterColor = 0x0000ff;
-    for (let header of headerTxt) {
+    for (let [i, header] of headerTxt.entries()) {
         let textGeo = new TextGeometry( header, 
                                     {
                                         font: fnt,
@@ -285,36 +303,56 @@ function buildHeader() {
                                     });
         textGeo.computeBoundingBox();
         let text = new Water( textGeo, waterOpts );
-        scene.add( text ); 
         text.cursor = 'pointer';
-        headers.push( [text] );
-        headerSpace -= textGeo.boundingBox.max.x;
-    }
+        
+        scene.add( text ); 
 
+        const box = new THREE.Mesh(new THREE.BoxGeometry( textGeo.boundingBox.max.x, textGeo.boundingBox.max.y, 0 ), 
+                                   new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
+        box.cursor = 'pointer';
+        
+        initHeader( box, i );
+        
+        scene.add( box );
+
+        headers.push( [ text, box ] );
+    }
+    let headerSpace = headers.reduce( (acc, [text, box]) => acc - text.geometry.boundingBox.max.x, w );
     let headerDelta = headerSpace / headerTxt.length;
     let pos = new THREE.Vector3;
     
     pos.x = ledge + headerDelta / 2;
-    pos.y = y;
+    pos.y = 1;
     pos.z = 30;
-    for (let [ i, header ] of headers.entries()) {
-        header[0].position.set( pos.x, pos.y, pos.z );
-        const box = new THREE.Mesh(new THREE.BoxGeometry( header[0].geometry.boundingBox.max.x, header[0].geometry.boundingBox.max.y, 0 ), 
-                                   new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
-        box.position.set( pos.x, pos.y, pos.z ); 
-        box.position.x += header[0].geometry.boundingBox.max.x / 2;
-        box.position.y += 1;
-        box.position.z += 1.5;
-        box.cursor = 'pointer';
-        initHeader( box, i );
-        scene.add( box );
-        header.push( box );
-        pos.x += headerDelta + header[0].geometry.boundingBox.max.x;
+    for (let [text, box] of headers) {
+        text.position.set( pos.x, pos.y, pos.z );
+        box.position.set( pos.x + text.geometry.boundingBox.max.x / 2, pos.y + 1, pos.z + 1.5 ); 
+        pos.x += headerDelta + text.geometry.boundingBox.max.x;
     }
-    if ( headerSpace <= 10 ) {
+    if (headerSpace <= 10) {
         headerSize *= .95;
-        loadText();
-        return;
+        createHeader();
+    }
+}
+
+function createName() {
+    if (nameText !== undefined) scene.remove(nameText);
+    let textGeo = new TextGeometry(
+                                    'matt russell', 
+                                    {
+                                        font: fnt,
+                                        size: nameSize,
+                                        height: 1,
+                                        curveSegments: 12
+                                    }
+                                );
+    textGeo.computeBoundingBox();
+    nameText = new Water( textGeo, waterOpts );
+    nameText.position.set( ledge + 2, 5, z );
+    scene.add( nameText );
+    if (nameText.geometry.boundingBox.max.x >= w * .33) {
+        nameSize *= .8;
+        createName();
     }
 }
 
@@ -323,27 +361,8 @@ function loadText() {
     const loader = new FontLoader();
     loader.load( '../static/helvetiker_regular.typeface.json', function ( f ) {
         fnt = f;
-        if (nameText !== undefined) scene.remove(nameText);
-
-        let textGeo = new TextGeometry(
-                                        'matt russell', 
-                                        {
-                                            font: fnt,
-                                            size: nameSize,
-                                            height: 1,
-                                            curveSegments: 12
-                                        }
-                                      );
-        textGeo.computeBoundingBox();
-        nameText = new Water( textGeo, waterOpts );
-        nameText.position.set( ledge + 2, 5, z );
-        scene.add( nameText ); 
-        if ( textGeo.boundingBox.max.x >= w * .33 ) {
-            nameSize *= .8;
-            loadText();
-            return;
-        }
-        buildHeader();
+        createName();
+        createHeader(); 
     });
 }
 
@@ -396,18 +415,29 @@ function updateSun() {
     scene.environment = renderTarget.texture;
 }
 
+var sunDir = 'down';
+
 function animate() {
     requestAnimationFrame( animate );
 
     water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
-    sunParams.elevation += 1.0 / 5000.0;
+    if (sunDir == 'up') {
+        sunParams.elevation += 1.0 / 500; //1.0 / 5000.0;
+    } else {
+        sunParams.elevation -= 1.0 / 500; //5000.0;
+    }
+    if (sunParams.elevation >= 5) {
+        sunDir = 'down';
+    } else if (sunParams.elevation <= -5) {
+        sunDir = 'up';
+    }
     updateSun();
 
     if (nameText !== undefined) {
-        nameText.material.uniforms['time'].value += 1.0 / 360.0;
+        nameText.material.uniforms[ 'time' ].value += 1.0 / 360.0;
     }
     for (let header of headers) {
-        header[0].material.uniforms['time'].value += 1.0 / 360.0;
+        header[0].material.uniforms[ 'time' ].value += 1.0 / 360.0;
     }
     if (cube !== undefined) {
         cube.rotation.y += 1/100;
