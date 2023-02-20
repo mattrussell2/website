@@ -9,7 +9,6 @@ import { Sky } from './three/Sky';
 import { Interaction } from 'three.interaction/src/index.js'; 
 import { CSS3DObject, CSS3DRenderer } from './three/CSS3DRenderer.js';
 
-
 const scene = new THREE.Scene();
 const cssScene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -18,6 +17,7 @@ camera.position.set( 0, 20, 100 );
 const renderer = new THREE.WebGLRenderer({antialias: true});
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
+
 
 const cssRenderer = new CSS3DRenderer();
 cssRenderer.setSize( window.innerWidth, window.innerHeight );
@@ -82,7 +82,7 @@ cssScene.add( objectCSS );
 const waterOpts = {
     textureWidth: 512,
     textureHeight: 512,
-    waterNormals: new THREE.TextureLoader().load( '../static/waternormals.jpeg', tex => tex.wrapS = tex.wrapT = THREE.RepeatWrapping ),
+    waterNormals: new THREE.TextureLoader().load( './assets/waternormals.jpeg', tex => tex.wrapS = tex.wrapT = THREE.RepeatWrapping ),
     sunDirection: new THREE.Vector3(),
     sunColor: 0xffffff,
     waterColor: 0x0ffff,
@@ -120,7 +120,7 @@ const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'javascript-origin
                 'github-original.svg', 'gitlab-original.svg', 'linux-plain.svg',
                 'pandas-original.svg', 'postgresql-original.svg', 'threejs-original.svg'];
 
-const logopath = '../static/logos/';
+const logopath = './assets/logos/';
 
 var nameText;
 var headers = [];
@@ -160,7 +160,7 @@ function onWindowResize() {
 }
 
 function make_image_material(fname) {
-    const texture = new THREE.TextureLoader().load( '../static/' + fname );
+    const texture = new THREE.TextureLoader().load( './assets/' + fname );
     texture.minFilter = THREE.LinearFilter;
     return new THREE.MeshBasicMaterial( { map: texture } );
 }
@@ -271,7 +271,7 @@ function initHeader(box, i) {
                 mail.click();
                 break;
             case 'resume':
-                window.open('../static/resume.pdf', '_blank');
+                window.open('./assets/resume.pdf', '_blank');
                 break;
         }
         if ( currVis === headerTxt[i] && obj !== null) {
@@ -359,7 +359,7 @@ function createName() {
 var fnt;
 function loadText() {
     const loader = new FontLoader();
-    loader.load( '../static/helvetiker_regular.typeface.json', function ( f ) {
+    loader.load( './assets/helvetiker_regular.typeface.json', function ( f ) {
         fnt = f;
         createName();
         createHeader(); 
@@ -367,8 +367,11 @@ function loadText() {
 }
 
 initCube();
+console.log("cube initialized");
 loadImages();
+console.log("pl images loaded");
 loadText();
+console.log("text loaded");
 
 /*
  * Sun and Sky
