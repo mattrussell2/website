@@ -8,18 +8,10 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js'
   },
-  watch: false, 
-  experiments:{
-    topLevelAwait: true
-  },
   plugins: [
     new CopyWebpackPlugin({
       'patterns':[
         { from: 'src/assets', to: 'assets' }
       ]})
   ]
-//   devServer: {
-//     static: path.join(__dirname, 'dist'),
-//     open: true
-//   }
 };
