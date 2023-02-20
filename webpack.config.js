@@ -1,4 +1,3 @@
-const loader = require('file-loader');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
