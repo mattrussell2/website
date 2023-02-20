@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "gh-pages": "^5.0.0",
+    "push-dir": "^0.4.1",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1"
@@ -20,6 +21,6 @@
     "build": "webpack",
     "dev": "node server.js",
     "test": "webpack --watch",
-    "deploy": "gh-pages -d dist --add true"
+    "deploy": "npm run build && gh-pages -d dist"
   }
 }
