@@ -394,9 +394,14 @@ skyUniforms[ 'mieCoefficient' ].value = 0.001;
 skyUniforms[ 'mieDirectionalG' ].value = 0.75;
 
 var sunParams = {
-    elevation: 0.50,
-    azimuth: 180
+    elevation: 0,
+    azimuth: 225
 };
+
+// let m_e = -50;
+//let m_a = 225;
+
+
 
 const pmremGenerator = new THREE.PMREMGenerator( renderer );
 let renderTarget;
@@ -415,21 +420,29 @@ function updateSun() {
     scene.environment = renderTarget.texture;
 }
 
-var sunDir = 'down';
-
+var sunDir = 'up';
+// midnight - a: 0, h; -64
+// 2 AM     - a: 
 function animate() {
     requestAnimationFrame( animate );
 
     water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
-    if (sunDir == 'up') {
-        sunParams.elevation += 1.0 / 500; //1.0 / 5000.0;
-    } else {
-        sunParams.elevation -= 1.0 / 500; //5000.0;
+
+    sunParams.azimuth -= 1.0 / 100;
+    if (sunParams.azimuth <= -350) {
+        sunParams.azimuth = 0;
     }
-    if (sunParams.elevation >= 5) {
+    if (sunParams.elevation >= 8) {
         sunDir = 'down';
-    } else if (sunParams.elevation <= -5) {
+    }else if (sunParams.elevation <= -12) {
         sunDir = 'up';
+        sunParams.elevation = -10;
+        sunParams.azimuth = 275;
+    }
+    if (sunDir == 'up') {
+        sunParams.elevation += 1.0 / 500; 
+    } else {
+        sunParams.elevation -= 1.0 / 500; 
     }
     updateSun();
 
