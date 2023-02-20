@@ -19,7 +19,6 @@
   },
   "scripts": {
     "build": "webpack",
-    "dev": "node server.js",
     "test": "webpack --watch",
     "deploy": "npm run build && gh-pages -d dist"
   }
