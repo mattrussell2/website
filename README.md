@@ -1,2 +1,1 @@
-# website
-https://mrussell.dev
+# https://mrussell.dev
