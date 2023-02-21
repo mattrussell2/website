@@ -183,8 +183,9 @@ function initCube() {
                          );
     cube.visible = false;
     cube.cursor = 'pointer';
-    cube.on( 'touchstart', (ev) => cube.click(ev) );
-    cube.on( 'click', function(ev) {
+    cube.on( 'touchstart', (ev) => click(ev) );
+    cube.on( 'click', (ev) => click(ev) );
+    function click(ev){     
         switch (ev.intersects[0].faceIndex) {
             case 0: 
             case 1: 
@@ -207,7 +208,7 @@ function initCube() {
                 window.open('https://gitlab.cs.tufts.edu/mrussell/gradescope-autograding', '_blank');
                 break;
         }
-    });
+    }
     scene.add(cube);
 }
 
