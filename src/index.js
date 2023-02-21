@@ -248,9 +248,25 @@ var currVis;
 
 function initHeader(box, i) {
     box.on( 'touchstart', (ev) => {
-        console.log("TOUCH STARTED"); 
+        console.log("TOUCHSTART"); 
         clickHeader(ev, i)
     });
+
+    box.on( 'touchend', (ev) => {
+        console.log("TOUCHEND"); 
+        clickHeader(ev, i)
+    });
+    box.on( 'mousedown', (ev) => {
+        console.log("MOUSEDOWN"); 
+        clickHeader(ev, i)
+    });
+
+    box.on( 'pointerdown', (ev) => {
+        console.log("POINTERDOWN"); 
+        clickHeader(ev, i)
+    });
+
+
     box.on( 'click', (ev) => clickHeader(ev, i) );
     
     function clickHeader(ev, i) {
