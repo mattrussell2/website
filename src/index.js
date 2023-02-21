@@ -183,7 +183,7 @@ function initCube() {
                          );
     cube.visible = false;
     cube.cursor = 'pointer';
-    cube.on( 'touchstart', (ev) => click(ev) );
+    //cube.on( 'touchstart', (ev) => click(ev) );
     cube.on( 'click', (ev) => click(ev) );
     function click(ev){     
         switch (ev.intersects[0].faceIndex) {
@@ -247,24 +247,24 @@ function loadImages() {
 var currVis; 
 
 function initHeader(box, i) {
-    box.on( 'touchstart', (ev) => {
-        console.log("TOUCHSTART"); 
-        //clickHeader(ev, i)
-    });
+    // box.on( 'touchstart', (ev) => {
+    //     console.log("TOUCHSTART"); 
+    //     //clickHeader(ev, i)
+    // });
 
-    box.on( 'touchend', (ev) => {
-        console.log("TOUCHEND"); 
-       // clickHeader(ev, i)
-    });
-    box.on( 'mousedown', (ev) => {
-        console.log("MOUSEDOWN"); 
-        //clickHeader(ev, i)
-    });
+    // box.on( 'touchend', (ev) => {
+    //     console.log("TOUCHEND"); 
+    //    // clickHeader(ev, i)
+    // });
+    // box.on( 'mousedown', (ev) => {
+    //     console.log("MOUSEDOWN"); 
+    //     //clickHeader(ev, i)
+    // });
 
-    box.on( 'pointerdown', (ev) => {
-        console.log("POINTERDOWN"); 
-        clickHeader(ev, i)
-    });
+    // box.on( 'pointerdown', (ev) => {
+    //     console.log("POINTERDOWN"); 
+    //     clickHeader(ev, i)
+    // });
 
 
     box.on( 'click', (ev) => {
