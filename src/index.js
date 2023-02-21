@@ -11,12 +11,12 @@ import { CSS3DObject, CSS3DRenderer } from './three/CSS3DRenderer.js';
 
 const scene = new THREE.Scene();
 
-const light = new THREE.AmbientLight( 0x404040 ); // soft white light
-scene.add( light );
+// const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+// scene.add( light );
 
 const cssScene = new THREE.Scene();
 const cssScale = 10;
-cssScene.scale.set( 1/cssScale, 1/cssScale, 1/cssScale);  //.1, .1, .1 );
+cssScene.scale.set( 1/cssScale, 1/cssScale, 1/cssScale);
 
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.set( 0, 20, 100 );
@@ -183,7 +183,6 @@ function initCube() {
                          );
     cube.visible = false;
     cube.cursor = 'pointer';
-    //cube.on( 'touchstart', (ev) => click(ev) );
     cube.on( 'click', (ev) => click(ev) );
     function click(ev){     
         switch (ev.intersects[0].faceIndex) {
@@ -218,8 +217,6 @@ function initCube() {
 function loadTexture(imgName, imgx, imgy, imgz) {
     const texture = new THREE.TextureLoader().load( logopath + imgName );
     texture.minFilter = THREE.LinearFilter;
-    // texture.generateMipmaps = false;
-    // texture.needsUpdate = true;
     const cube = new THREE.Mesh(
                                 new THREE.BoxGeometry( plCubeDim, plCubeDim, 0 ),
                                 new THREE.MeshBasicMaterial( { map: texture, transparent:true } )
@@ -247,26 +244,7 @@ function loadImages() {
 var currVis; 
 
 function initHeader(box, i) {
-    // box.on( 'touchstart', (ev) => {
-    //     console.log("TOUCHSTART"); 
-    //     //clickHeader(ev, i)
-    // });
-
-    // box.on( 'touchend', (ev) => {
-    //     console.log("TOUCHEND"); 
-    //    // clickHeader(ev, i)
-    // });
-    // box.on( 'mousedown', (ev) => {
-    //     console.log("MOUSEDOWN"); 
-    //     //clickHeader(ev, i)
-    // });
-
-    // box.on( 'pointerdown', (ev) => {
-    //     console.log("POINTERDOWN"); 
-    //     clickHeader(ev, i)
-    // });
-
-
+    
     box.on( 'click', (ev) => {
         console.log("CLICK");   
         clickHeader(ev, i) 
@@ -348,6 +326,8 @@ function createHeader() {
         const box = new THREE.Mesh(new THREE.BoxGeometry( textGeo.boundingBox.max.x, textGeo.boundingBox.max.y*2, 10 ), 
                                    new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0 } ));
         box.cursor = 'pointer';
+        box.renderOrder = 999; // render first to make sure it's clickable
+        box.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
         
         initHeader( box, i );
         
@@ -438,10 +418,6 @@ var sunParams = {
     elevation: 0,
     azimuth: 225
 };
-
-// let m_e = -50;
-//let m_a = 225;
-
 
 
 const pmremGenerator = new THREE.PMREMGenerator( renderer );
