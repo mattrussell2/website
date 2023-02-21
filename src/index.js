@@ -243,12 +243,10 @@ function loadImages() {
 
 var currVis; 
 
-function initHeader(box, i) {
+function initHeader(text, box, i) {
     
-    box.on( 'click', (ev) => {
-        console.log("CLICK");   
-        clickHeader(ev, i) 
-    });
+    text.on( 'click', (ev) => clickHeader(ev, i) );
+    box.on( 'click', (ev) =>  clickHeader(ev, i) );
         
     function clickHeader(ev, i) {
         objectCSS.visible = false;
@@ -329,7 +327,7 @@ function createHeader() {
         box.renderOrder = 999; // render first to make sure it's clickable
         box.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
         
-        initHeader( box, i );
+        initHeader( text, box, i );
         
         scene.add( box );
 
