@@ -8,23 +8,32 @@ import { Water } from './three/Water';
 import { Sky } from './three/Sky';
 import { Interaction } from 'three.interaction/src/index.js'; 
 import { CSS3DObject, CSS3DRenderer } from './three/CSS3DRenderer.js';
+import { Text } from 'troika-three-text'
 
 const scene = new THREE.Scene();
+
+const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+scene.add( light );
+
 const cssScene = new THREE.Scene();
+const cssScale = 10;
+cssScene.scale.set( 1/cssScale, 1/cssScale, 1/cssScale);  //.1, .1, .1 );
+
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.set( 0, 20, 100 );
 
-const renderer = new THREE.WebGLRenderer({antialias: true});
+const renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-
 const cssRenderer = new CSS3DRenderer();
-cssRenderer.setSize( window.innerWidth, window.innerHeight );
+cssRenderer.setSize( window.innerWidth, window.innerHeight);
 cssRenderer.domElement.style.position = 'absolute';
 cssRenderer.domElement.style.top = 0;
 cssRenderer.domElement.style.pointerEvents = 'none';
 document.body.appendChild( cssRenderer.domElement );
+
 
 // for mouse interaction
 const interaction = new Interaction(renderer, scene, camera);
@@ -56,14 +65,14 @@ var w = visibleWidthAtZDepth(30, camera);
 var h = visibleHeightAtZDepth(30, camera);
 var ledge = -w / 2;
 var textBoxWidth = w * .9;
-var textBoxHeight = h * .6;
+var textBoxHeight = h * .5;
 
 var textBox = document.createElement( 'div' );
-textBox.style.width = `${textBoxWidth}px`;
-textBox.style.maxHeight = `${textBoxHeight}px`;
+textBox.style.width = `${ textBoxWidth * cssScale }px`;
+textBox.style.maxHeight = `${textBoxHeight * cssScale}px`;
 textBox.style.height = 'auto'; 
 textBox.style.color = '#657b83';
-textBox.style.fontSize = '2px';
+textBox.style.fontSize = `${ 2 * cssScale }px`;
 textBox.style.scrollbarWidth = 'thin';
 textBox.style.borderRadius = '1em';
 textBox.style.overflowX = 'hidden';
@@ -74,8 +83,8 @@ textBox.style.opacity = 1;
 
 var objectCSS = new CSS3DObject( textBox );
 objectCSS.position.x = 0;
-objectCSS.position.y = h / 2;
-objectCSS.position.z = 30;
+objectCSS.position.y = ( h * cssScale ) / 2;
+objectCSS.position.z = 30 * cssScale;
 objectCSS.visible = false;
 cssScene.add( objectCSS );
 
@@ -162,6 +171,8 @@ function onWindowResize() {
 function make_image_material(fname) {
     const texture = new THREE.TextureLoader().load( './assets/' + fname );
     texture.minFilter = THREE.LinearFilter;
+    // texture.generateMipmaps = false;
+    // texture.needsUpdate = true;
     return new THREE.MeshBasicMaterial( { map: texture } );
 }
 
@@ -172,7 +183,7 @@ function initCube() {
     cube = new THREE.Mesh(
                             new THREE.BoxGeometry( boxSize, boxSize, boxSize, 1, 1, 1 ), 
                             [ imgMats[2], imgMats[1], imgMats[3], imgMats[1], imgMats[0], imgMats[0] ]
-                         );     
+                         );
     cube.visible = false;
     cube.cursor = 'pointer';
     cube.on('click', function(ev) {
@@ -208,6 +219,9 @@ function initCube() {
  */
 function loadTexture(imgName, imgx, imgy, imgz) {
     const texture = new THREE.TextureLoader().load( logopath + imgName );
+    texture.minFilter = THREE.LinearFilter;
+    // texture.generateMipmaps = false;
+    // texture.needsUpdate = true;
     const cube = new THREE.Mesh(
                                 new THREE.BoxGeometry( plCubeDim, plCubeDim, 0 ),
                                 new THREE.MeshBasicMaterial( { map: texture, transparent:true } )
@@ -304,6 +318,7 @@ function createHeader() {
         textGeo.computeBoundingBox();
         let text = new Water( textGeo, waterOpts );
         text.cursor = 'pointer';
+        text.minFilter = THREE.LinearFilter; //new
         
         scene.add( text ); 
 
