@@ -8,7 +8,6 @@ import { Water } from './three/Water';
 import { Sky } from './three/Sky';
 import { Interaction } from 'three.interaction/src/index.js'; 
 import { CSS3DObject, CSS3DRenderer } from './three/CSS3DRenderer.js';
-import { Text } from 'troika-three-text'
 
 const scene = new THREE.Scene();
 
@@ -322,8 +321,8 @@ function createHeader() {
         
         scene.add( text ); 
 
-        const box = new THREE.Mesh(new THREE.BoxGeometry( textGeo.boundingBox.max.x, textGeo.boundingBox.max.y, 0 ), 
-                                   new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
+        const box = new THREE.Mesh(new THREE.BoxGeometry( textGeo.boundingBox.max.x, textGeo.boundingBox.max.y*2, 1 ), 
+                                   new THREE.MeshBasicMaterial( { color: 0x000000, transparent:false, opacity:0.5 } ));
         box.cursor = 'pointer';
         
         initHeader( box, i );
@@ -341,7 +340,7 @@ function createHeader() {
     pos.z = 30;
     for (let [text, box] of headers) {
         text.position.set( pos.x, pos.y, pos.z );
-        box.position.set( pos.x + text.geometry.boundingBox.max.x / 2, pos.y + 1, pos.z + 1.5 ); 
+        box.position.set( pos.x + text.geometry.boundingBox.max.x / 2.0, pos.y + text.geometry.boundingBox.max.y / 2.0, pos.z + 1.5 ); 
         pos.x += headerDelta + text.geometry.boundingBox.max.x;
     }
     if (headerSpace <= 10) {
