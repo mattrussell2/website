@@ -190,6 +190,7 @@ function initCube() {
     cube.cursor = 'pointer';
     cube.on( 'click', (ev) => click(ev) );
     function click(ev){     
+        console.log(ev.intersects[0].faceIndex);
         switch (ev.intersects[0].faceIndex) {
             case 0: 
             case 1: 
