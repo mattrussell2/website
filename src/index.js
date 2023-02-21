@@ -170,8 +170,6 @@ function onWindowResize() {
 function make_image_material(fname) {
     const texture = new THREE.TextureLoader().load( './assets/' + fname );
     texture.minFilter = THREE.LinearFilter;
-    // texture.generateMipmaps = false;
-    // texture.needsUpdate = true;
     return new THREE.MeshBasicMaterial( { map: texture } );
 }
 
@@ -185,8 +183,8 @@ function initCube() {
                          );
     cube.visible = false;
     cube.cursor = 'pointer';
-    cube.on('click', function(ev) {
-
+    cube.on( 'touchstart', (ev) => cube.click(ev) );
+    cube.on( 'click', function(ev) {
         switch (ev.intersects[0].faceIndex) {
             case 0: 
             case 1: 
