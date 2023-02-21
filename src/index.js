@@ -247,7 +247,10 @@ function loadImages() {
 var currVis; 
 
 function initHeader(box, i) {
-    box.on( 'touchstart', (ev) => clickHeader(ev, i) );
+    box.on( 'touchstart', (ev) => {
+        console.log("TOUCH STARTED"); 
+        clickHeader(ev, i)
+    });
     box.on( 'click', (ev) => clickHeader(ev, i) );
     
     function clickHeader(ev, i) {
