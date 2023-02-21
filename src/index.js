@@ -326,7 +326,7 @@ function createHeader() {
 
         // on mobile, seems that only the front-face is clickable, so make the boxes really tall. 
         const box = new THREE.Mesh(new THREE.BoxGeometry( textGeo.boundingBox.max.x, textGeo.boundingBox.max.y * isDesktop ? 3 : 10, 10 ), 
-                                    new THREE.MeshBasicMaterial( { color: 0x000000, transparent:false, opacity:0.5 } ));
+                                    new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
         box.cursor = 'pointer';
         
         scene.add( box );
