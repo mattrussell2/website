@@ -322,7 +322,7 @@ function createHeader() {
         scene.add( text ); 
 
         const box = new THREE.Mesh(new THREE.BoxGeometry( textGeo.boundingBox.max.x, textGeo.boundingBox.max.y*2, 1 ), 
-                                   new THREE.MeshBasicMaterial( { color: 0x000000, transparent:false, opacity:0.5 } ));
+                                   new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0 } ));
         box.cursor = 'pointer';
         
         initHeader( box, i );
