@@ -247,7 +247,10 @@ function loadImages() {
 var currVis; 
 
 function initHeader(box, i) {
-    box.on( 'click', function(ev) {
+    box.on( 'touchstart', (ev) => clickHeader(ev, i) );
+    box.on( 'click', (ev) => clickHeader(ev, i) );
+    
+    function clickHeader(ev, i) {
         objectCSS.visible = false;
         cube.visible = false;
         let obj = null;
@@ -292,7 +295,7 @@ function initHeader(box, i) {
         } else {
             currVis = headerTxt[i];
         }
-    });
+    }
 }
 
 function createHeader() {
