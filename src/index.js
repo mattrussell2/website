@@ -73,7 +73,7 @@ var textBoxHeight = h * .5;
 
 var textBox = document.createElement( 'div' );
 textBox.style.width = `${ textBoxWidth * cssScale }px`;
-textBox.style.maxHeight = `${textBoxHeight * cssScale}px`;
+textBox.style.maxHeight = `${ textBoxHeight * cssScale }px`;
 textBox.style.height = 'auto'; 
 textBox.style.color = '#657b83';
 textBox.style.fontSize = `${ 2 * cssScale }px`;
@@ -164,9 +164,9 @@ function onWindowResize() {
     textBoxWidth = w * .9;
     textBoxHeight = h * .6;
 
-    textBox.style.width = `${textBoxWidth}px`;
-    textBox.style.maxHeight = `${textBoxHeight}px`;
-    objectCSS.position.set(0, h/2, 30); 
+    textBox.style.width = `${ textBoxWidth * cssScale }px`;
+    textBox.style.maxHeight = `${ textBoxHeight * cssScale }px`;
+    objectCSS.position.y = ( h * cssScale ) / 2;
 
     loadImages();
     loadText();
