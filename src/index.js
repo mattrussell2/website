@@ -267,8 +267,11 @@ function initHeader(box, i) {
     });
 
 
-    box.on( 'click', (ev) => clickHeader(ev, i) );
-    
+    box.on( 'click', (ev) => {
+        console.log("CLICK");   
+        clickHeader(ev, i) 
+    });
+        
     function clickHeader(ev, i) {
         objectCSS.visible = false;
         cube.visible = false;
