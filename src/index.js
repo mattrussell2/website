@@ -184,7 +184,7 @@ function initCube() {
     const boxSize = (h < w ? h : w) / 3;
     cube = new THREE.Mesh(
                             new THREE.BoxGeometry( boxSize, boxSize, boxSize, 1, 1, 1 ), 
-                            [ imgMats[2], imgMats[1], imgMats[3], imgMats[1], imgMats[0], imgMats[4] ]
+                            [ imgMats[2], imgMats[1], imgMats[4], imgMats[1], imgMats[0], imgMats[3] ]
                          );
     cube.visible = false;
     cube.cursor = 'pointer';
@@ -204,10 +204,11 @@ function initCube() {
                 break;
             case 4:
             case 5:
-                window.open('https://www.github.com/mattrussell2/cuda_raytracer', '_blank');
+                window.open('https://www.github.com/mattrussell2/15-vis', '_blank');
                 break;
             case 8:
             case 9:
+                window.open('https://www.github.com/mattrussell2/cuda_raytracer', '_blank');
             case 10:
             case 11:
                 window.open('https://gitlab.cs.tufts.edu/mrussell/gradescope-autograding', '_blank');
