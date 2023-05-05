@@ -179,12 +179,12 @@ function make_image_material(fname) {
 }
 
 function initCube() {
-    const imgFiles = [ 'gradescope_autograder_pic.png', 'unit_test_pic.png', 'backgammon.png', 'cuda_raytracer.png' ];
+    const imgFiles = [ 'gradescope_autograder_pic.png', 'unit_test_pic.png', 'backgammon.png', 'cuda_raytracer.png', 'heap_vis.png' ];
     const imgMats = imgFiles.map( fname => make_image_material(fname) );
     const boxSize = (h < w ? h : w) / 3;
     cube = new THREE.Mesh(
                             new THREE.BoxGeometry( boxSize, boxSize, boxSize, 1, 1, 1 ), 
-                            [ imgMats[2], imgMats[1], imgMats[3], imgMats[1], imgMats[0], imgMats[0] ]
+                            [ imgMats[2], imgMats[1], imgMats[3], imgMats[1], imgMats[0], imgMats[4] ]
                          );
     cube.visible = false;
     cube.cursor = 'pointer';
