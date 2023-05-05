@@ -168,6 +168,7 @@ function onWindowResize() {
     textBox.style.maxHeight = `${ textBoxHeight * cssScale }px`;
     objectCSS.position.y = ( h * cssScale ) / 2;
 
+    initCube();
     loadImages();
     loadText();
 }
@@ -179,6 +180,10 @@ function make_image_material(fname) {
 }
 
 function initCube() {
+    if ( cube !== undefined ) {
+        scene.remove(cube);
+    }
+
     const imgFiles = [ 'gradescope_autograder_pic.png', 'unit_test_pic.png', 'backgammon.png', 'cuda_raytracer.png' ];
     const imgMats = imgFiles.map( fname => make_image_material(fname) );
     const boxSize = (h < w ? h : w) / 3;
@@ -388,18 +393,15 @@ function loadText() {
 }
 
 initCube();
-console.log("cube initialized");
 loadImages();
-console.log("pl images loaded");
 loadText();
-console.log("text loaded");
 
 /*
  * Sun and Sky
  * https://threejs.org/examples/?q=water#webgl_shaders_ocean
  */
 const water = new Water( 
-                            new THREE.PlaneGeometry( 10000, 10000 ), 
+                            new THREE.PlaneGeometry( isMobile ? 2000 : 10000, isMobile ? 2000 : 10000 ), 
                             waterOpts 
                        );
 water.rotation.x = - Math.PI / 2;
@@ -407,7 +409,7 @@ scene.add( water );
 
 const sun = new THREE.Vector3();
 const sky = new Sky();
-sky.scale.setScalar( 10000 );
+sky.scale.setScalar( isMobile ? 2000 : 10000 );
 scene.add( sky );
 
 const skyUniforms = sky.material.uniforms;
@@ -441,8 +443,6 @@ function updateSun() {
 }
 
 var sunDir = 'up';
-// midnight - a: 0, h; -64
-// 2 AM     - a: 
 function animate() {
     requestAnimationFrame( animate );
 
