@@ -181,11 +181,11 @@ function make_image_material(fname) {
 }
 
 function initCube() {
-    if ( cube !== undefined ) {
-        scene.remove(cube);
-    }
+    //if ( cube !== undefined ) {
+    //     scene.remove(cube);
+    // }
 
-    const imgFiles = [ 'gradescope_autograder_pic.png', 'unit_test_pic.png', 'backgammon.png', 'cuda_raytracer.png' ];
+    const imgFiles = [ 'gradescope_autograder_pic.png', 'unit_test_pic.png', 'backgammon.png', 'cuda_raytracer.png', 'heap_vis.png' ];
     const imgMats = imgFiles.map( fname => make_image_material(fname) );
     const boxSize = (h < w ? h : w) / 3;
     cube = new THREE.Mesh(
@@ -210,14 +210,15 @@ function initCube() {
                 break;
             case 4:
             case 5:
-                window.open('https://www.github.com/mattrussell2/15-vis', '_blank');
+                window.open('https://mattrussell2.github.io/15-vis/', '_blank');
                 break;
             case 8:
             case 9:
-                window.open('https://www.github.com/mattrussell2/cuda_raytracer', '_blank');
+                window.open('https://gitlab.cs.tufts.edu/mrussell/gradescope-autograding', '_blank');
+                break;
             case 10:
             case 11:
-                window.open('https://gitlab.cs.tufts.edu/mrussell/gradescope-autograding', '_blank');
+                window.open('https://www.github.com/mattrussell2/cuda_raytracer', '_blank');
                 break;
         }
     }
