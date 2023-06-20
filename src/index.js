@@ -190,7 +190,7 @@ function initCube() {
     const boxSize = (h < w ? h : w) / 3;
     cube = new THREE.Mesh(
                             new THREE.BoxGeometry( boxSize, boxSize, boxSize, 1, 1, 1 ), 
-                            [ imgMats[2], imgMats[5], imgMats[4], imgMats[1], imgMats[0], imgMats[3] ]
+                            [ imgMats[2], imgMats[0], imgMats[4], imgMats[1], imgMats[5], imgMats[3] ]
                          );
     cube.visible = false;
     cube.cursor = 'pointer';
@@ -204,7 +204,7 @@ function initCube() {
                 break;
             case 2:
             case 3:
-                window.open('https://www.github.com/mattrussell2/website', '_blank');
+                window.open('https://www.github.com/mattrussell2/gradescope-autograder', '_blank');
                 break;
             case 6:
             case 7:
@@ -216,7 +216,7 @@ function initCube() {
                 break;
             case 8:
             case 9:
-                window.open('https://github.com/mattrussell2/gradescope-autograder', '_blank');
+                window.open('https://github.com/mattrussell2/website', '_blank');
                 break;
             case 10:
             case 11:
