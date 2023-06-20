@@ -22,7 +22,7 @@ const scene = new THREE.Scene();
 
 const cssScene = new THREE.Scene();
 const cssScale = 10;
-cssScene.scale.set( 1/cssScale, 1/cssScale, 1/cssScale);
+cssScene.scale.set( 1 / cssScale, 1 / cssScale, 1 / cssScale );
 
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.set( 0, 20, 100 );
@@ -214,7 +214,7 @@ function initCube() {
                 break;
             case 8:
             case 9:
-                window.open('https://gitlab.cs.tufts.edu/mrussell/gradescope-autograding', '_blank');
+                window.open('https://github.com/mattrussell2/gradescope-autograder', '_blank');
                 break;
             case 10:
             case 11:
