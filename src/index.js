@@ -185,12 +185,12 @@ function initCube() {
     //     scene.remove(cube);
     // }
 
-    const imgFiles = [ 'gradescope_autograder_pic.png', 'unit_test_pic.png', 'backgammon.png', 'cuda_raytracer.png', 'heap_vis.png' ];
+    const imgFiles = [ 'gradescope_autograder_pic.png', 'unit_test_pic.png', 'backgammon.png', 'cuda_raytracer.png', 'heap_vis.png', 'website.png' ];
     const imgMats = imgFiles.map( fname => make_image_material(fname) );
     const boxSize = (h < w ? h : w) / 3;
     cube = new THREE.Mesh(
                             new THREE.BoxGeometry( boxSize, boxSize, boxSize, 1, 1, 1 ), 
-                            [ imgMats[2], imgMats[1], imgMats[4], imgMats[1], imgMats[0], imgMats[3] ]
+                            [ imgMats[2], imgMats[5], imgMats[4], imgMats[1], imgMats[0], imgMats[3] ]
                          );
     cube.visible = false;
     cube.cursor = 'pointer';
@@ -204,6 +204,8 @@ function initCube() {
                 break;
             case 2:
             case 3:
+                window.open('https://www.github.com/mattrussell2/website', '_blank');
+                break;
             case 6:
             case 7:
                 window.open('https://www.github.com/mattrussell2/vscode-cpp-unit-test', '_blank');
