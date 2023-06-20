@@ -200,7 +200,7 @@ function initCube() {
         switch (ev.intersects[0].faceIndex) {
             case 0: 
             case 1: 
-                window.open('https://www.github.com/mattrussell2/backgammon', '_blank');
+                window.open('https://www.github.com/mattrussell2/games', '_blank');
                 break;
             case 2:
             case 3:
