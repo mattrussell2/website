@@ -210,7 +210,7 @@ function initCube() {
                 break;
             case 4:
             case 5:
-                window.open('https://mattrussell2.github.io/15-vis/', '_blank');
+                window.open('https://mattrussell2.github.io/data-structures-vis/', '_blank');
                 break;
             case 8:
             case 9:
