@@ -185,7 +185,7 @@ function initCube() {
     //     scene.remove(cube);
     // }
 
-    const imgFiles = [ 'gradescope_autograder_pic.png', 'unit_test_pic.png', 'backgammon.png', 'cuda_raytracer.png', 'heap_vis.png', 'website.png' ];
+    const imgFiles = [ 'cuda_raytracer.png', 'unit_test_pic.png', 'backgammon.png', 'gradescope_autograder_pic.png', 'heap_vis.png', 'website.png' ];
     const imgMats = imgFiles.map( fname => make_image_material(fname) );
     const boxSize = (h < w ? h : w) / 3;
     cube = new THREE.Mesh(
@@ -204,7 +204,7 @@ function initCube() {
                 break;
             case 2:
             case 3:
-                window.open('https://www.github.com/mattrussell2/gradescope-autograder', '_blank');
+                window.open('https://www.github.com/mattrussell2/cuda_raytracer', '_blank');
                 break;
             case 6:
             case 7:
@@ -220,7 +220,7 @@ function initCube() {
                 break;
             case 10:
             case 11:
-                window.open('https://www.github.com/mattrussell2/cuda_raytracer', '_blank');
+                window.open('https://www.github.com/mattrussell2/gradescope-autograder', '_blank');
                 break;
         }
     }
