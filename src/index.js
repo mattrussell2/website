@@ -106,15 +106,18 @@ const waterOpts = {
 
 const researchText = `I work in the Human-Computer Interaction Lab at Tufts University. We study implicit Brain-Computer interfaces. Specifically, I have developed and run human subject studies using functional near-infrared spectroscopy (fNIRS) and/or electroencephalography (EEG) to measure brain activity, and to adapt a user's interface to better help the user based on brain state. 
 <br><br>
-Since arriving at Tufts, I have been a part of the following papers:
+I have been a part of the following papers:
 <br><br>
 A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). https://www.mdpi.com/2304-6732/6/3/90
 <br><br>
 T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management,” Proc. Tenth Augmented Human International Conference (2019). http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf
 <br><br>
-L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). http://www.samulus.com/public/papers/NeuralCorrelatesofMindfulness.pdf`
+L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). http://www.samulus.com/public/papers/NeuralCorrelatesofMindfulness.pdf
+<br><br>
+L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, and R. Jacob, “This is Your Brain on Interfaces: Enhancing Usability Testing with Functional Near-Infrared Spectroscopy,” Proc. ACM CHI 2011 Human Factors in Computing Systems Conference, ACM Press (2011).`
 
-const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is about implicit Brain-Computer Interfaces. I'm also a teaching assistant for the computer science department, and I have taught the Data Structures course in C++.
+const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is about implicit Brain-Computer Interfaces. I'm also a teaching assistant for the computer science department, and I have taught the Data Structures course in C++ twice.
+
 <br><br>My hobbies include hiking, camping, rock climbing, snowboarding, chess and cooking. I'm happily married since January 2016, and have two daughers, ages 2 and 4.`
 
 const teachingText = `I have been a teaching assistant for the computer science department at Tufts University since 2016. I have ta'd the following courses: 
@@ -125,7 +128,7 @@ const teachingText = `I have been a teaching assistant for the computer science 
 <br>CS 116: Cybersecurity 
 <br>CS 175: Computer Graphics (C++) [2 semesters]
 <br><br>
-Additionally I taught the 2020 summer session of CS 15: Data Structures (C++) at Tufts University. I am planning to teach this course in 2023 summer as well. 
+Additionally I taught the 2020 and 2023 summer sessions of CS 15: Data Structures (C++) at Tufts University. 
 `
 
 const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'javascript-original.svg', 'java-original.svg',
