@@ -118,7 +118,7 @@ L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Wil
 
 const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is about implicit Brain-Computer Interfaces. I'm also a teaching assistant for the computer science department, and I have taught the Data Structures course in C++ twice.
 
-<br><br>My hobbies include hiking, camping, rock climbing, snowboarding, chess and cooking. I'm happily married since January 2016, and have two daughers, ages 2 and 4.`
+<br><br>My hobbies include hiking, camping, rock climbing, snowboarding, chess and cooking. I'm happily married since January 2016, and have two amazing daughters, ages 3 and 5.`
 
 const teachingText = `I have been a teaching assistant for the computer science department at Tufts University since 2016. I have ta'd the following courses: 
 <br>
