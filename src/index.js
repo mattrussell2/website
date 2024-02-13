@@ -453,7 +453,7 @@ function updateSun() {
 // https://stackoverflow.com/questions/11285065/limiting-framerate-in-three-js-to-increase-performance-requestanimationframe
 // limit framerate to 60fps. 
 const clock = new THREE.Clock();
-const interval = 1 / 60;
+const interval = 1 / 30;
 
 var sunDir = 'up';
 function animate() {
@@ -461,7 +461,6 @@ function animate() {
 
     if ( clock.getElapsedTime() < interval) return; 
     
-    console.log(clock.getElapsedTime());
     clock.start();
 
     water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
