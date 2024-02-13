@@ -104,10 +104,10 @@ const waterOpts = {
     fog: scene.fog !== undefined, 
 }
 
-const researchText = `I work in the Human-Computer Interaction Lab at Tufts University. We study implicit Brain-Computer interfaces. Specifically, I have developed and run human subject studies using functional near-infrared spectroscopy (fNIRS) and/or electroencephalography (EEG) to measure brain activity, and to adapt a user's interface to better help the user based on brain state. 
+const researchText = `I work in the Human-Computer Interaction Lab at Tufts University. We study implicit Brain-Computer interface design and implementation. Specifically, we run human subject studies using functional near-infrared spectroscopy (fNIRS) and/or electroencephalography (EEG), whereby we infer a mental state from the user (e.g. mental workload) for the purpose of adapting an interface towards the user's benefit. Our current work is multidimensional, focusing on: pushing state-of-the-art mental workload interfaces, leveraging measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, as well as inferring cross-task 'horizontal' state-classification from EEG data towards future BCI designs. 
 <br><br>
-I have been a part of the following papers:
-<br><br>
+-- Publications --
+<br>
 A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). https://www.mdpi.com/2304-6732/6/3/90
 <br><br>
 T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management," Proc. Tenth Augmented Human International Conference (2019). http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf
@@ -116,19 +116,20 @@ L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "M
 <br><br>
 L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, and R. Jacob, "This is Your Brain on Interfaces: Enhancing Usability Testing with Functional Near-Infrared Spectroscopy," Proc. ACM CHI 2011 Human Factors in Computing Systems Conference, ACM Press (2011).`
 
-const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is about implicit Brain-Computer Interfaces. I'm also a teaching assistant for the computer science department, and I have taught the Data Structures course in C++ twice.
+const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is focuses on measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, developing next-generation workload-based fNIRS interfaces, and inferring cross-task 'horizontal' state-classification from EEG data towards future BCI work. I'm also a teaching assistant for the computer science department, and have been the professor for our online Data Structures course (in C++) twice.
 
-<br><br>My hobbies include hiking, camping, rock climbing, snowboarding, chess and cooking. I'm happily married since January 2016, and have two amazing daughters, ages 3 and 5.`
+<br><br>I'm happily married (since January 2016), and have two amazing daughters, born 2018 and 2020. My hobbies include: cooking, chess, crossword puzzles, camping, snowboarding, rock climbing. `
 
-const teachingText = `I have been a teaching assistant for the computer science department at Tufts University since 2016. I have ta'd the following courses: 
-<br>
-<br>CS 10: Introduction to Computer Science (Python)
+const teachingText = `-- Courses Taught -- 
+<br>CS 15: Data Structures (C++) [2020 and 2023 summer semesters]
+<br><br>
+-- Courses TA'd -- 
+<br>CS 175: Computer Graphics (C++) [2 semesters]
 <br>CS 15: Data Structures (C++) [7 semesters]
 <br>CS 50CP: Concurrency (Erlang, Python)
 <br>CS 116: Cybersecurity 
-<br>CS 175: Computer Graphics (C++) [2 semesters]
-<br><br>
-Additionally I taught the 2020 and 2023 summer sessions of CS 15: Data Structures (C++) at Tufts University. 
+<br>CS 10: Introduction to Computer Science (Python)
+<br>
 `
 
 const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'javascript-original.svg', 'java-original.svg',
