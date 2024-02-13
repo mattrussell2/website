@@ -451,7 +451,7 @@ function updateSun() {
 }
 
 // https://stackoverflow.com/questions/11285065/limiting-framerate-in-three-js-to-increase-performance-requestanimationframe
-// limit framerate to 60fps. 
+// limit framerate to 30fps. 
 const clock = new THREE.Clock();
 const interval = 1 / 30;
 
