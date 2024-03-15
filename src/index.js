@@ -133,8 +133,8 @@ const teachingText = `-- Courses Taught --
 `
 
 const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'javascript-original.svg', 'java-original.svg',
-                'bash-original.svg', 'matlab-plain.svg', 'docker-original.svg', 
-                'digitalocean-original.svg', 'heroku-original.svg', 'git-original.svg', 
+                'r-original.svg', 'bash-original.svg', 'matlab-plain.svg', 
+		'docker-original.svg', 'digitalocean-original.svg', 'git-original.svg', 
                 'github-original.svg', 'gitlab-original.svg', 'linux-plain.svg',
                 'pandas-original.svg', 'postgresql-original.svg', 'threejs-original.svg'];
 
