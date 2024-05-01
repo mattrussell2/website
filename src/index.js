@@ -108,13 +108,13 @@ const researchText = `I work in the Human-Computer Interaction Lab at Tufts Univ
 <br><br>
 -- Publications --
 <br>
-M. Russell, A. Shah, G. Blaney, J. Amores, A. Cambon, M. Czerwinski, R.J.K
-Jacob, "Your Brain on an Interactive LLM" [in review] (2024). <br><br>
-M. Russell, S. Youkeles, A. Shah, E. Lai, R.J.K. Jacob, “Chess, Cognitive
-Neuroscience, and their Interaction with the MUSE 2 device for BCI” [in review]
-(2024).<br><br>
-M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob,
-"Visualization and Workload with Implicit fNIRS-based BCI" [in review] (2024).<br><br>
+M. Russell, A. Shah, G. Blaney, J. Amores, A. Cambon, M. Czerwinski, R.J.K Jacob, "Your Brain on an Interactive LLM" [in review] (2024). 
+<br><br>
+M. Russell, S. Youkeles, A. Shah, E. Lai, R.J.K. Jacob, “Chess, Cognitive Neuroscience, and their Interaction with the MUSE 2 device for BCI” [in review]
+(2024).
+<br><br>
+M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob,"Visualization and Workload with Implicit fNIRS-based BCI" [in review] (2024).
+<br><br>
 A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). https://www.mdpi.com/2304-6732/6/3/90
 <br><br>
 T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management," Proc. Tenth Augmented Human International Conference (2019). http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf
