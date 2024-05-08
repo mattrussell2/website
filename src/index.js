@@ -99,7 +99,7 @@ const waterOpts = {
     waterNormals: new THREE.TextureLoader().load( './assets/waternormals.jpeg', tex => tex.wrapS = tex.wrapT = THREE.RepeatWrapping ),
     sunDirection: new THREE.Vector3(),
     sunColor: 0xffffff,
-    waterColor: 0x0ffff,
+    waterColor: 0x0fffff,
     distortionScale: 7,
     fog: scene.fog !== undefined, 
 }
@@ -113,15 +113,17 @@ M. Russell, A. Shah, G. Blaney, J. Amores, A. Cambon, M. Czerwinski, R.J.K Jacob
 M. Russell, S. Youkeles, A. Shah, E. Lai, R.J.K. Jacob, “Chess, Cognitive Neuroscience, and their Interaction with the MUSE 2 device for BCI” [in review]
 (2024).
 <br><br>
-M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob,"Visualization and Workload with Implicit fNIRS-based BCI" [in review] (2024).
+M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob,"Visualization and Workload with Implicit fNIRS-based BCI", Frontiers in Neuroergonomics (2024) [accepted].
 <br><br>
-A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). https://www.mdpi.com/2304-6732/6/3/90
+A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). <a href="https://www.mdpi.com/2304-6732/6/3/90">link</a>
 <br><br>
-T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management," Proc. Tenth Augmented Human International Conference (2019). http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf
+T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management," Proc. Tenth Augmented Human International Conference (2019). <a href="http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf">link</a>
 <br><br>
-L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). http://www.samulus.com/public/papers/NeuralCorrelatesofMindfulness.pdf
+L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). <a href="http://www.samulus.com/public/papers/NeuralCorrelatesofMindfulness.pdf">link</a>
 <br><br>
-L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, and R. Jacob, "This is Your Brain on Interfaces: Enhancing Usability Testing with Functional Near-Infrared Spectroscopy," Proc. ACM CHI 2011 Human Factors in Computing Systems Conference, ACM Press (2011).`
+L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, and R. Jacob, "This is Your Brain on Interfaces: Enhancing Usability Testing with Functional Near-Infrared Spectroscopy," Proc. ACM CHI 2011 Human Factors in Computing Systems Conference, ACM Press (2011). <a href="https://dl.tufts.edu/concern/pdfs/j6731g17b">link</a>
+<br><br>
+L. Hirshfield, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, “Trust in Human-Computer Interactions as Measured by Frustration, Surprise, and Workload.,” Foundations of Augmented Cognition. Directing the Future of Adaptive Systems. (2011). <a href="https://doi.org/10.1007/978-3-642-21852-1_58">link</a>`
 
 const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is focuses on measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, developing next-generation workload-based fNIRS interfaces, and inferring cross-task 'horizontal' state-classification from EEG data towards future BCI work. I'm also a teaching assistant for the computer science department, and have been the professor for our online Data Structures course (in C++) twice.
 
@@ -149,6 +151,7 @@ const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'r-original.svg',
 const logopath = './assets/logos/';
 
 var nameText;
+var nameGlow;
 var headers = [];
 var plBoxes = [];
 
@@ -158,7 +161,7 @@ var plCubeDim = 4;
 
 var cube;
 
-const headerTxt = ['about', 'projects', 'teaching', 'research', 'contact', 'resume'];
+const headerTxt = ['about', 'research', 'projects', 'teaching', 'contact', 'resume'];
 
 window.addEventListener( 'resize', onWindowResize ); 
 
@@ -331,8 +334,21 @@ function createHeader() {
     }
     headers.length = 0;
 
+    const textColorOptions = {
+        'white': 0xffffff,
+        'yellow': 0xffff00,
+        'orange': 0xffa500,
+        'neonGreen': 0x39ff14,
+        'lightGrey': 0xd3d3d3,
+        'coralRed': 0xff7f50,
+        'mintGreen': 0x98ff98,
+        'lavender': 0xe6e6fa
+      };
+      
+
     const headerOpts = waterOpts;
-    headerOpts.waterColor = 0x0000ff;
+    // headerOpts.waterColor = 0xffffff;  // Consider using a bright color but not pure white
+    // headerOpts.sunColor = 0x202020;    
     for (let [i, header] of headerTxt.entries()) {
         let textGeo = new TextGeometry( header, 
                                     {
@@ -342,10 +358,15 @@ function createHeader() {
                                         curveSegments: 12
                                     });
         textGeo.computeBoundingBox();
-        let text = new Water( textGeo, waterOpts );
+        let text = new Water( textGeo, headerOpts); //waterOpts );
         text.cursor = 'pointer';
         text.minFilter = THREE.LinearFilter; //new
         scene.add( text ); 
+
+        const glowMaterial = new THREE.MeshBasicMaterial({ color: 0x5C295C, transparent: false, opacity: 0.25 });
+        const textGlow = new THREE.Mesh(textGeo, glowMaterial);
+        textGlow.scale.multiplyScalar(1.02);
+        scene.add(textGlow);
 
         // on mobile, seems that only the front-face is clickable, so make the boxes really tall. 
         const box = new THREE.Mesh(new THREE.BoxGeometry( textGeo.boundingBox.max.x, textGeo.boundingBox.max.y * isDesktop ? 3 : 10, 10 ), 
@@ -356,7 +377,8 @@ function createHeader() {
 
         initHeader( text, i );
         initHeader( box, i );
-        headers.push( [ text, box ] );
+                
+        headers.push( [ text, box, textGlow ] );
         
     }
     let headerSpace = headers.reduce( (acc, [text, box]) => acc - text.geometry.boundingBox.max.x, w );
@@ -366,20 +388,27 @@ function createHeader() {
     pos.x = ledge + headerDelta / 2;
     pos.y = 1;
     pos.z = 30;
-    for ( let [text, box] of headers ) {
+    for ( let [text, box, textGlow] of headers ) {
         text.position.set( pos.x, pos.y, pos.z );
         box.position.set( pos.x + text.geometry.boundingBox.max.x / 2.0, pos.y, pos.z ); 
+        textGlow.position.set(pos.x, pos.y, pos.z);
         pos.x += headerDelta + text.geometry.boundingBox.max.x;
+        
     }
 
     if ( headerSpace <= 10 ) {
         headerSize *= .95;
         createHeader();
     }
+
+
 }
 
 function createName() {
-    if (nameText !== undefined) scene.remove(nameText);
+    if (nameText !== undefined) {
+        scene.remove(nameText);
+        // scene.remove(nameGlow); 
+    }
     let textGeo = new TextGeometry(
                                     'matt russell', 
                                     {
@@ -393,10 +422,18 @@ function createName() {
     nameText = new Water( textGeo, waterOpts );
     nameText.position.set( ledge + 2, 5, z );
     scene.add( nameText );
+
+    // const glowMaterial = new THREE.MeshBasicMaterial({ color: 0x5C295C, transparent: true, opacity: 0.5 });
+    // nameGlow = new THREE.Mesh(textGeo, glowMaterial);
+    // nameGlow.scale.multiplyScalar(1.02);
+    // nameGlow.position.set( nameText.position.x, nameText.position.y, nameText.position.z);
+    // scene.add( nameGlow );
+
     if (nameText.geometry.boundingBox.max.x >= w * .33) {
         nameSize *= .8;
         createName();
-    }
+    }    
+
 }
 
 var fnt;
