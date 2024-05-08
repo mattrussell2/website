@@ -119,7 +119,7 @@ A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer I
 <br><br>
 T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management," Proc. Tenth Augmented Human International Conference (2019). <a href="http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf">link</a>
 <br><br>
-L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). <a href="http://www.samulus.com/public/papers/NeuralCorrelatesofMindfulness.pdf">link</a>
+L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). <a href="https://www.researchgate.net/publication/329362205_Measuring_the_neural_correlates_of_mindfulness_with_functional_near-infrared_spectroscopy">link</a>
 <br><br>
 L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, and R. Jacob, "This is Your Brain on Interfaces: Enhancing Usability Testing with Functional Near-Infrared Spectroscopy," Proc. ACM CHI 2011 Human Factors in Computing Systems Conference, ACM Press (2011). <a href="https://dl.tufts.edu/concern/pdfs/j6731g17b">link</a>
 <br><br>
