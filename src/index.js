@@ -39,6 +39,15 @@ cssRenderer.domElement.style.top = 0;
 cssRenderer.domElement.style.pointerEvents = 'none';
 document.body.appendChild( cssRenderer.domElement );
 
+// for tab switch 
+document.addEventListener('visibilitychange', onDocumentVisible, true); // ADDED LINE
+function onDocumentVisible() {
+    if (document.hidden) {
+        console.log('hidden');
+    } else {
+        console.log('visible');
+    }
+}
 
 // for mouse interaction
 const interaction = new Interaction(renderer, scene, camera);
@@ -125,7 +134,7 @@ L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Wil
 <br><br>
 L. Hirshfield, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, “Trust in Human-Computer Interactions as Measured by Frustration, Surprise, and Workload.,” Foundations of Augmented Cognition. Directing the Future of Adaptive Systems. (2011). <a href="https://doi.org/10.1007/978-3-642-21852-1_58">link</a>`
 
-const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which is focuses on measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, developing next-generation workload-based fNIRS interfaces, and inferring cross-task 'horizontal' state-classification from EEG data towards future BCI work. I'm also a teaching assistant for the computer science department, and have been the professor for our online Data Structures course (in C++) twice.
+const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which focuses on measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, developing next-generation workload-based fNIRS interfaces, and inferring cross-task 'horizontal' state-classification from EEG data towards future BCI work. I'm also a teaching assistant for the computer science department, and have been the professor for our online Data Structures course (in C++) twice.
 
 <br><br>I'm happily married (since January 2016), and have two amazing daughters, born 2018 and 2020. My hobbies include: cooking, chess, crossword puzzles, camping, snowboarding, rock climbing. `
 
@@ -317,7 +326,7 @@ function initHeader(obj, i) {
                 window.open('./assets/resume.pdf', '_blank');
                 break;
         }
-        if ( currVis === headerTxt[i] && obj !== null) {
+        if ( currVis === headerTxt[i] && obj !== null ) {
             obj.visible = false;
             currVis = null;
         } else {
