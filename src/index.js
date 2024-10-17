@@ -8,6 +8,20 @@ import { Water } from './three/Water';
 import { Sky } from './three/Sky';
 import { Interaction } from 'three.interaction/src/index.js'; 
 import { CSS3DObject, CSS3DRenderer } from './three/CSS3DRenderer.js';
+import { OrbitControls } from './three/OrbitControls.js';
+import { UnderwaterTransition } from './underwaterTransition.js';
+import { EffectComposer } from './three/EffectComposer.js';
+import { TWEEN } from './three/tween.module.min';
+
+THREE.ColorManagement.enabled = false;
+
+const eye_fixed_x = 0; 
+const eye_fixed_y = 10;
+const eye_fixed_z = 100;
+
+const eye_world_x = 0;
+const eye_world_y = 20;
+const eye_world_z = 115;
 
 window.mobileCheck = function() {
     let check = false;
@@ -19,54 +33,46 @@ const isMobile = window.mobileCheck();
 const isDesktop = !isMobile; 
 
 const scene = new THREE.Scene();
-
 const cssScene = new THREE.Scene();
-const cssScale = 10;
-cssScene.scale.set( 1 / cssScale, 1 / cssScale, 1 / cssScale );
+cssScene.scale.set(0.1, 0.1, 0.1);
 
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.position.set( 0, 20, 100 );
+camera.position.set( eye_fixed_x, eye_fixed_y, eye_fixed_z );
+
 
 const renderer = new THREE.WebGLRenderer( { antialias: true } );
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 document.body.appendChild( renderer.domElement );
 
 const cssRenderer = new CSS3DRenderer();
-cssRenderer.setSize( window.innerWidth, window.innerHeight);
+cssRenderer.setSize(window.innerWidth, window.innerHeight);
 cssRenderer.domElement.style.position = 'absolute';
-cssRenderer.domElement.style.top = 0;
+cssRenderer.domElement.style.top = '0';
+cssRenderer.domElement.style.left = '0';
 cssRenderer.domElement.style.pointerEvents = 'none';
-document.body.appendChild( cssRenderer.domElement );
+document.body.appendChild(cssRenderer.domElement);
 
-// for tab switch 
-document.addEventListener('visibilitychange', onDocumentVisible, true); // ADDED LINE
-function onDocumentVisible() {
-    if (document.hidden) {
-        console.log('hidden');
-    } else {
-        console.log('visible');
-    }
-}
+const composer = new EffectComposer( renderer );
+
+const controls = new OrbitControls( camera, renderer.domElement );
 
 // for mouse interaction
 const interaction = new Interaction(renderer, scene, camera);
 
-
-// /*
-//  * Given a depth, return the height/width of the visible area
-//  * https://discourse.threejs.org/t/functions-to-calculate-the-visible-width-height-at-a-given-z-depth-from-a-perspective-camera/269
-//  */
+/*
+ * Given a depth, return the height/width of the visible area
+ * https://discourse.threejs.org/t/functions-to-calculate-the-visible-width-height-at-a-given-z-depth-from-a-perspective-camera/269
+ */
 const visibleHeightAtZDepth = ( depth, camera ) => {
-    // compensate for cameras not positioned at z=0
-    const cameraOffset = camera.position.z;
+    const cameraOffset = eye_fixed_z;
     if ( depth < cameraOffset ) depth -= cameraOffset;
     else depth += cameraOffset;
   
-    // vertical fov in radians
+    // vertical fov (radians)
     const vFOV = camera.fov * Math.PI / 180; 
   
-    // Math.abs to ensure the result is always positive
     return 2 * Math.tan( vFOV / 2 ) * Math.abs( depth );
 };
   
@@ -74,31 +80,26 @@ const visibleWidthAtZDepth = ( depth, camera ) => {
     return visibleHeightAtZDepth( depth, camera ) * camera.aspect;
 };
 
-const z = 30;
-var w = visibleWidthAtZDepth(30, camera);
-var h = visibleHeightAtZDepth(30, camera);
+const z_depth = 50;
+var w = visibleWidthAtZDepth(z_depth, camera);
+var h = visibleHeightAtZDepth(z_depth, camera);
 var ledge = -w / 2;
-var textBoxWidth = w * .9;
-var textBoxHeight = h * .5;
 
 var textBox = document.createElement( 'div' );
-textBox.style.width = `${ textBoxWidth * cssScale }px`;
-textBox.style.maxHeight = `${ textBoxHeight * cssScale }px`;
-textBox.style.height = 'auto'; 
-textBox.style.color = '#657b83';
-textBox.style.fontSize = `${ 2 * cssScale }px`;
-textBox.style.scrollbarWidth = 'thin';
-textBox.style.borderRadius = '1em';
-textBox.style.overflowX = 'hidden';
-textBox.style.overflowY = 'auto';
-textBox.style.padding = '0.25em';
-textBox.style.backgroundColor = '#073642';
-textBox.style.opacity = 1;
+textBox.style.width = 'auto';
+textBox.style.height = 'auto';
+textBox.style.backgroundColor = 'rgba(256, 256, 0, 100)'; //'rgba(0, 194, 186, 0.8)';
+textBox.style.color = '#000000';
+textBox.style.padding = '20px';
+textBox.style.borderRadius = '10px';
+textBox.style.overflow = 'auto';
+textBox.style.fontSize = '16px';
+textBox.style.display = 'flex';
+textBox.style.alignItems = 'center';
+textBox.style.justifyContent = 'center';
+textBox.style.transform = 'translate(-50%, -50%)';
 
 var objectCSS = new CSS3DObject( textBox );
-objectCSS.position.x = 0;
-objectCSS.position.y = ( h * cssScale ) / 2;
-objectCSS.position.z = 30 * cssScale;
 objectCSS.visible = false;
 cssScene.add( objectCSS );
 
@@ -111,6 +112,7 @@ const waterOpts = {
     waterColor: 0x0fffff,
     distortionScale: 7,
     fog: scene.fog !== undefined, 
+    shininess: 100,
 }
 
 const researchText = `I work in the Human-Computer Interaction Lab at Tufts University. We study implicit Brain-Computer interface design and implementation. Specifically, we run human subject studies using functional near-infrared spectroscopy (fNIRS) and/or electroencephalography (EEG), whereby we infer a mental state from the user (e.g. mental workload) for the purpose of adapting an interface towards the user's benefit. Our current work is multidimensional, focusing on: pushing state-of-the-art mental workload interfaces, leveraging measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, as well as inferring cross-task 'horizontal' state-classification from EEG data towards future BCI designs. 
@@ -134,7 +136,7 @@ L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Wil
 <br><br>
 L. Hirshfield, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, “Trust in Human-Computer Interactions as Measured by Frustration, Surprise, and Workload.,” Foundations of Augmented Cognition. Directing the Future of Adaptive Systems. (2011). <a href="https://doi.org/10.1007/978-3-642-21852-1_58">link</a>`
 
-const aboutText = `Welcome. My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, teaching, and learning. I'm currently working on my dissertation, which focuses on measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, developing next-generation workload-based fNIRS interfaces, and inferring cross-task 'horizontal' state-classification from EEG data towards future BCI work. I'm also a teaching assistant for the computer science department, and have been the professor for our online Data Structures course (in C++) twice.
+const aboutText = `Welcome! My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, learning, and teaching. I'm currently working on my dissertation, which focuses on measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, developing next-generation workload-based fNIRS interfaces, and inferring cross-task 'horizontal' state-classification from EEG data towards future BCI work. I'm also a teaching assistant for the computer science department, and have been the professor for our online Data Structures course (in C++) twice.
 
 <br><br>I'm happily married (since January 2016), and have two amazing daughters, born 2018 and 2020. My hobbies include: cooking, chess, crossword puzzles, camping, snowboarding, rock climbing. `
 
@@ -151,9 +153,9 @@ const teachingText = `-- Courses Taught --
 `
 
 const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'r-original.svg', 
-		'javascript-original.svg', 'java-original.svg',
+		        'javascript-original.svg', 'java-original.svg',
                 'bash-original.svg', 'matlab-plain.svg', 
-		'docker-original.svg', 'digitalocean-original.svg', 'git-original.svg', 
+		        'docker-original.svg', 'digitalocean-original.svg', 'git-original.svg', 
                 'github-original.svg', 'gitlab-original.svg', 'linux-plain.svg',
                 'pandas-original.svg', 'postgresql-original.svg', 'threejs-original.svg'];
 
@@ -166,7 +168,7 @@ var plBoxes = [];
 
 var nameSize = 7;
 var headerSize = 2;
-var plCubeDim = 4;
+var plCubeDim = 2.25;
 
 var cube;
 
@@ -175,27 +177,38 @@ const headerTxt = ['about', 'research', 'projects', 'teaching', 'contact', 'resu
 window.addEventListener( 'resize', onWindowResize ); 
 
 function onWindowResize() {
+
+    camera.position.set( eye_fixed_x, eye_fixed_y, eye_fixed_z );
+
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
     cssRenderer.setSize( window.innerWidth, window.innerHeight );
     
-    w = visibleWidthAtZDepth(30, camera);
-    h = visibleHeightAtZDepth(30, camera);
+    w = visibleWidthAtZDepth(z_depth, camera);
+    h = visibleHeightAtZDepth(z_depth, camera);
     nameSize = 7;
     headerSize = 2;
-    plCubeDim = 4;
+    plCubeDim = 2.25;
     ledge = -w / 2;
-    textBoxWidth = w * .9;
-    textBoxHeight = h * .6;
 
-    textBox.style.width = `${ textBoxWidth * cssScale }px`;
-    textBox.style.maxHeight = `${ textBoxHeight * cssScale }px`;
-    objectCSS.position.y = ( h * cssScale ) / 2;
-
+    loadText();
     initCube();
     loadImages();
-    loadText();
+
+    camera.position.set( eye_world_x, eye_world_y, eye_world_z );
+    controls.update();
+
+    if (objectCSS.visible) {
+        const distance = 100;
+        const verticalOffset = h / 4;
+        objectCSS.position.copy(camera.position);
+        objectCSS.position.z = camera.position.z - distance;
+        objectCSS.position.y -= verticalOffset;
+        objectCSS.quaternion.copy(camera.quaternion);
+    }
+    controls.update()
+
 }
 
 function make_image_material(fname) {
@@ -205,9 +218,13 @@ function make_image_material(fname) {
 }
 
 function initCube() {
-    //if ( cube !== undefined ) {
-    //     scene.remove(cube);
-    // }
+    let is_visible = false; 
+
+    if ( cube !== undefined ) {
+        console.log("removing cube");
+        is_visible = cube.visible;
+        scene.remove(cube);
+    }
 
     const imgFiles = [ 'gradescope_autograder_pic.png', 'cuda_raytracer.png', 'backgammon.png', 'unit_test_pic.png', 'heap_vis.png', 'website.png' ];
     const imgMats = imgFiles.map( fname => make_image_material(fname) );
@@ -216,7 +233,7 @@ function initCube() {
                             new THREE.BoxGeometry( boxSize, boxSize, boxSize, 1, 1, 1 ), 
                             [ imgMats[2], imgMats[0], imgMats[4], imgMats[1], imgMats[5], imgMats[3] ]
                          );
-    cube.visible = false;
+    cube.visible = is_visible;
     cube.cursor = 'pointer';
     cube.on( 'click', (ev) => click(ev) );
     function click(ev){     
@@ -249,6 +266,16 @@ function initCube() {
         }
     }
     scene.add(cube);
+
+    if ( is_visible ) { 
+        const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
+        const d = h - yCurr - 15;
+        cube.position.set(0, yCurr + d/3, 30);
+        cube.scale.set(1, 1, 1); 
+        cube.rotation.y = THREE.MathUtils.degToRad(55);
+        cube.rotation.z = THREE.MathUtils.degToRad(45);
+        currObj = cube;
+    }
 }
 
 /*
@@ -257,21 +284,21 @@ function initCube() {
 function loadTexture(imgName, imgx, imgy, imgz) {
     const texture = new THREE.TextureLoader().load( logopath + imgName );
     texture.minFilter = THREE.LinearFilter;
-    const cube = new THREE.Mesh(
+    const pl_cube = new THREE.Mesh(
                                 new THREE.BoxGeometry( plCubeDim, plCubeDim, 0 ),
                                 new THREE.MeshBasicMaterial( { map: texture, transparent:true } )
                                );
-    cube.position.set( imgx, imgy, imgz );
-    scene.add( cube );
-    plBoxes.push( cube );
+    pl_cube.position.set( imgx, imgy, imgz );
+    scene.add( pl_cube );
+    plBoxes.push( pl_cube );
 }
 
 function loadImages() {
     plBoxes.forEach( plBox => scene.remove( plBox ) );
     plBoxes = [];
     
-    const imgy = 2;
-    const imgz = 50;
+    const imgy = 1.75;
+    const imgz = 75;
     const imgw = visibleWidthAtZDepth( imgz, camera );
     const wDelta = imgw / pgimgs.length;
     while ( wDelta <= plCubeDim * .95 ) {
@@ -281,7 +308,8 @@ function loadImages() {
     pgimgs.forEach( (imgName, i) => loadTexture( imgName, -imgw / 2.0 + wDelta / 2.0 + wDelta * i, imgy, imgz ) );
 }
 
-var currVis; 
+var currVis;
+var currObj;
 
 function initHeader(obj, i) {
     
@@ -290,12 +318,30 @@ function initHeader(obj, i) {
     function clickHeader(ev, i) {
         objectCSS.visible = false;
         cube.visible = false;
-        let obj = null;
+        currObj = null;
         switch ( headerTxt[i] ) {
             case 'about':
-                textBox.innerHTML = aboutText;
-                objectCSS.visible = true;
-                obj = objectCSS;
+                if (!underwaterTransition.isUnderwater) {
+                    underwaterTransition.transitionToUnderwater(() => {
+                        textBox.innerHTML = aboutText;
+                        objectCSS.visible = true;
+                        currObj = objectCSS;
+
+                        // Position the text in front of the camera
+                        const distance = 100;
+                    
+                        objectCSS.position.copy(camera.position);
+                        objectCSS.position.z = camera.position.z - distance;
+                        objectCSS.position.y += h / 2;
+                        objectCSS.quaternion.copy(camera.quaternion);
+
+                    });
+                } else {
+                    // If already underwater, just show the content immediately
+                    textBox.innerHTML = aboutText;
+                    objectCSS.visible = true;
+                    currObj = objectCSS;
+                }
                 break;
             case 'projects':                
                 const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
@@ -305,17 +351,17 @@ function initHeader(obj, i) {
                 cube.rotation.y = THREE.MathUtils.degToRad(55);
                 cube.rotation.z = THREE.MathUtils.degToRad(45);
                 cube.visible = true;
-                obj = cube;
+                currObj = cube;
                 break;
             case 'teaching':
                 textBox.innerHTML = teachingText;
                 objectCSS.visible = true;
-                obj = objectCSS;
+                currObj = objectCSS;
                 break;
             case 'research':
                 textBox.innerHTML = researchText;
                 objectCSS.visible = true;
-                obj = objectCSS;
+                currObj = objectCSS;
                 break;
             case 'contact':
                 const mail = document.createElement("a");
@@ -327,7 +373,7 @@ function initHeader(obj, i) {
                 break;
         }
         if ( currVis === headerTxt[i] && obj !== null ) {
-            obj.visible = false;
+            currObj.visible = false;
             currVis = null;
         } else {
             currVis = headerTxt[i];
@@ -343,31 +389,17 @@ function createHeader() {
     }
     headers.length = 0;
 
-    const textColorOptions = {
-        'white': 0xffffff,
-        'yellow': 0xffff00,
-        'orange': 0xffa500,
-        'neonGreen': 0x39ff14,
-        'lightGrey': 0xd3d3d3,
-        'coralRed': 0xff7f50,
-        'mintGreen': 0x98ff98,
-        'lavender': 0xe6e6fa
-      };
-      
-
     const headerOpts = waterOpts;
-    // headerOpts.waterColor = 0xffffff;  // Consider using a bright color but not pure white
-    // headerOpts.sunColor = 0x202020;    
     for (let [i, header] of headerTxt.entries()) {
         let textGeo = new TextGeometry( header, 
                                     {
                                         font: fnt,
                                         size: headerSize,
-                                        height: 0.5,
+                                        depth: 0.5,
                                         curveSegments: 12
                                     });
         textGeo.computeBoundingBox();
-        let text = new Water( textGeo, headerOpts); //waterOpts );
+        let text = new Water( textGeo, headerOpts);
         text.cursor = 'pointer';
         text.minFilter = THREE.LinearFilter; //new
         scene.add( text ); 
@@ -390,19 +422,19 @@ function createHeader() {
         headers.push( [ text, box, textGlow ] );
         
     }
-    let headerSpace = headers.reduce( (acc, [text, box]) => acc - text.geometry.boundingBox.max.x, w );
+    let fullHeaderSpace = headers.reduce( (acc, [text, box]) => acc - text.geometry.boundingBox.max.x, w );
+    let headerSpace = fullHeaderSpace * .75;
     let headerDelta = headerSpace / headerTxt.length;
     let pos = new THREE.Vector3;
     
-    pos.x = ledge + headerDelta / 2;
+    pos.x = ledge + headerDelta / 2 + (fullHeaderSpace - headerSpace) / 2; 
     pos.y = 1;
-    pos.z = 30;
+    pos.z = eye_fixed_z - z_depth;
     for ( let [text, box, textGlow] of headers ) {
         text.position.set( pos.x, pos.y, pos.z );
         box.position.set( pos.x + text.geometry.boundingBox.max.x / 2.0, pos.y, pos.z ); 
         textGlow.position.set(pos.x, pos.y, pos.z);
         pos.x += headerDelta + text.geometry.boundingBox.max.x;
-        
     }
 
     if ( headerSpace <= 10 ) {
@@ -410,34 +442,36 @@ function createHeader() {
         createHeader();
     }
 
-
 }
 
 function createName() {
+    
     if (nameText !== undefined) {
         scene.remove(nameText);
-        // scene.remove(nameGlow); 
+        scene.remove(nameGlow);
     }
+
     let textGeo = new TextGeometry(
                                     'matt russell', 
                                     {
                                         font: fnt,
                                         size: nameSize,
-                                        height: 1,
+                                        depth: 1,
                                         curveSegments: 12
                                     }
                                 );
     textGeo.computeBoundingBox();
+
     nameText = new Water( textGeo, waterOpts );
-    nameText.position.set( ledge + 2, 5, z );
+    nameText.position.set( ledge + 2, 5, eye_fixed_z - z_depth );
     scene.add( nameText );
 
-    // const glowMaterial = new THREE.MeshBasicMaterial({ color: 0x5C295C, transparent: true, opacity: 0.5 });
-    // nameGlow = new THREE.Mesh(textGeo, glowMaterial);
-    // nameGlow.scale.multiplyScalar(1.02);
-    // nameGlow.position.set( nameText.position.x, nameText.position.y, nameText.position.z);
-    // scene.add( nameGlow );
 
+    const glowMaterial = new THREE.MeshBasicMaterial({ color: 0x5C295C, transparent: true, opacity: .5 });
+    nameGlow = new THREE.Mesh(textGeo, glowMaterial);
+    nameGlow.position.set( nameText.position.x, nameText.position.y, nameText.position.z);
+    scene.add(nameGlow);
+    
     if (nameText.geometry.boundingBox.max.x >= w * .33) {
         nameSize *= .8;
         createName();
@@ -455,9 +489,14 @@ function loadText() {
     });
 }
 
+loadText();
 initCube();
 loadImages();
-loadText();
+camera.position.set( eye_world_x, eye_world_y, eye_world_z );
+controls.update();
+
+const underwaterTransition = new UnderwaterTransition(scene, camera, renderer, composer);
+scene.add( underwaterTransition.underwaterScene );
 
 /*
  * Sun and Sky
@@ -505,6 +544,16 @@ function updateSun() {
     scene.environment = renderTarget.texture;
 }
 
+// function updateTextPosition() {
+//     // Position the text in front of the camera
+//     const distance = 100; // Adjust this value as needed
+//     objectCSS.position.set(0, 0, 0);
+
+//     // Update the cssScene position to match the camera
+//     cssScene.position.copy(camera.position);
+//     cssScene.quaternion.copy(camera.quaternion);
+// }
+
 // https://stackoverflow.com/questions/11285065/limiting-framerate-in-three-js-to-increase-performance-requestanimationframe
 // limit framerate to 30fps. 
 const clock = new THREE.Clock();
@@ -547,8 +596,18 @@ function animate() {
     if (cube !== undefined) {
         cube.rotation.y += 1/100;
     }
-    renderer.render( scene, camera );
+
+    controls.update();
+    if (underwaterTransition.isUnderwater) {
+        renderer.render(underwaterTransition.underwaterScene, camera);
+    } else {
+        renderer.render(scene, camera);
+    }
+
+    // updateTextPosition();
     cssRenderer.render( cssScene, camera );
+
+    TWEEN.update();
     
 };
 
