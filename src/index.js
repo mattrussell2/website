@@ -172,7 +172,7 @@ var plCubeDim = 2.25;
 
 var cube;
 
-const headerTxt = ['about', 'research', 'projects', 'teaching', 'contact', 'resume'];
+const headerTxt = ['about', 'research', 'projects', 'teaching', 'resume', 'contact'];
 
 window.addEventListener( 'resize', onWindowResize ); 
 
