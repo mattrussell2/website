@@ -415,6 +415,12 @@ function initHeader(obj, i) {
                 textBox.innerHTML = teachingText;
                 objectCSS.visible = true;
                 currObj = objectCSS;
+                
+                objectCSS.position.copy(camera.position);
+                objectCSS.position.z = camera.position.z - 100;
+                objectCSS.position.y += h / 2 + 100;
+                objectCSS.quaternion.copy(camera.quaternion);
+
                 break;
             case 'research':
                 if (!skyTransition.isSky) {
