@@ -16,7 +16,6 @@ export class UnderwaterTransition {
         this.underwaterScene.background = new THREE.Color(0x00C2BA);
 
         this.setupUnderwaterEffect();
-        // this.addUnderwaterElements();
         this.isUnderwater = false;
 
         // Add a fog to the main scene for transition effect
@@ -73,27 +72,6 @@ export class UnderwaterTransition {
         this.composer.addPass(this.underwaterPass);
     }
 
-    // addUnderwaterElements() {
-    //     const geometry = new THREE.BoxGeometry(10, 10, 10);
-    //     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    //     const cube = new THREE.Mesh(geometry, material);
-    //     cube.position.set(0, 0, -50);
-    //     this.underwaterScene.add(cube);
-
-    //     // Add some fish
-    //     for (let i = 0; i < 20; i++) {
-    //         const fishGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-    //         const fishMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    //         const fish = new THREE.Mesh(fishGeometry, fishMaterial);
-    //         fish.position.set(
-    //             Math.random() * 40 - 20,
-    //             Math.random() * 20 - 10,
-    //             Math.random() * 40 - 20
-    //         );
-    //         this.underwaterScene.add(fish);
-    //     }
-    // }
-
     transitionToUnderwater(callback) {
         console.log("Starting transition to underwater");
         const startY = this.camera.position.y;
@@ -112,11 +90,40 @@ export class UnderwaterTransition {
                 if (this.camera.position.y < 0) {
                     this.isUnderwater = true;
                 }
-                // console.log(`Camera Y: ${this.camera.position.y.toFixed(2)}, Progress: ${progress.toFixed(2)}`);
             })
             .onComplete(() => {
                 console.log("Transition complete");
                 this.isUnderwater = true;
+                if (callback) {
+                    callback();
+                } 
+            })
+            .start();
+    }
+
+    transitionToHome(callback) {
+        console.log("Starting transition to earth");
+        const startY = this.camera.position.y;
+        const endY = 10;
+
+        new TWEEN.Tween(this.camera.position)
+            .to({ y: endY }, 1000)
+            .easing(TWEEN.Easing.Cubic.InOut)
+            .onStart(() => {
+                this.sound.play();
+            })
+            .onUpdate(() => {
+                const progress = (startY - this.camera.position.y) / (startY - endY);
+                this.underwaterPass.uniforms.distort.value = Math.max(0, progress);
+                this.mainScene.fog.density = (1 - progress) * 0.05;
+                
+                if (this.camera.position.y > 0 ) {
+                    this.isUnderwater = false;
+                }
+            })
+            .onComplete(() => {
+                console.log("Transition complete");
+                this.isUnderwater = false;
                 if (callback) {
                     callback();
                 }

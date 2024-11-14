@@ -5,13 +5,15 @@ import * as THREE from 'three';
 import { FontLoader } from './three/FontLoader';
 import { TextGeometry } from './three/TextGeometry';
 import { Water } from './three/Water';
-import { Sky } from './three/Sky';
+// import { Sky } from './three/Sky';
 import { Interaction } from 'three.interaction/src/index.js'; 
 import { CSS3DObject, CSS3DRenderer } from './three/CSS3DRenderer.js';
 import { OrbitControls } from './three/OrbitControls.js';
 import { UnderwaterTransition } from './underwaterTransition.js';
+import { SkyTransition } from './skyTransition.js';
 import { EffectComposer } from './three/EffectComposer.js';
 import { TWEEN } from './three/tween.module.min';
+import { StarField } from './StarField';
 
 THREE.ColorManagement.enabled = false;
 
@@ -20,7 +22,7 @@ const eye_fixed_y = 10;
 const eye_fixed_z = 100;
 
 const eye_world_x = 0;
-const eye_world_y = 20;
+const eye_world_y = 10;
 const eye_world_z = 115;
 
 window.mobileCheck = function() {
@@ -58,8 +60,18 @@ const composer = new EffectComposer( renderer );
 
 const controls = new OrbitControls( camera, renderer.domElement );
 
+console.log(controls.update);
+
 // for mouse interaction
 const interaction = new Interaction(renderer, scene, camera);
+
+const underwaterTransition = new UnderwaterTransition(scene, camera, renderer, composer);
+scene.add( underwaterTransition.underwaterScene );
+
+const skyTransition = new SkyTransition(scene, camera, renderer, controls);
+
+
+const starField = new StarField(scene);
 
 /*
  * Given a depth, return the height/width of the visible area
@@ -160,6 +172,50 @@ const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'r-original.svg',
                 'pandas-original.svg', 'postgresql-original.svg', 'threejs-original.svg'];
 
 const logopath = './assets/logos/';
+
+var homeButton = new THREE.Group();
+homeButton.cursor = 'pointer';
+const buttonSize = 0.25;
+
+// Create the circular background
+const circleGeometry = new THREE.CircleGeometry(buttonSize, 32);
+const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.5 });
+const circle = new THREE.Mesh(circleGeometry, circleMaterial);
+homeButton.add(circle);
+
+// Create the arrow
+const arrowShape = new THREE.Shape();
+arrowShape.moveTo(0, buttonSize * 0.5);
+arrowShape.lineTo(-buttonSize * 0.55, -buttonSize * 0.2);
+arrowShape.lineTo(-buttonSize * 0.3, -buttonSize * 0.2);
+arrowShape.lineTo(-buttonSize * 0.3, -buttonSize * 0.5);
+arrowShape.lineTo(buttonSize * 0.3, -buttonSize * 0.5);
+arrowShape.lineTo(buttonSize * 0.3, -buttonSize * 0.2);
+arrowShape.lineTo(buttonSize * 0.55, -buttonSize * 0.2);
+arrowShape.lineTo(0, buttonSize * 0.5);
+
+const arrowGeometry = new THREE.ShapeGeometry(arrowShape);
+const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+homeButton.add(arrow);
+homeButton.visible = false;
+
+scene.add(homeButton);
+underwaterTransition.underwaterScene.add(homeButton);
+
+function goHome() {
+    objectCSS.visible = false;
+    if (underwaterTransition.isUnderwater) {
+        underwaterTransition.transitionToHome();
+    }else if (skyTransition.isSky) {
+        skyTransition.transitionToHome();
+    }  
+    homeButton.visible = false;
+}
+
+// Make the button clickable
+homeButton.userData = { clickable: true };
+homeButton.on( 'click', (ev) => { goHome() } );
 
 var nameText;
 var nameGlow;
@@ -327,13 +383,15 @@ function initHeader(obj, i) {
                         objectCSS.visible = true;
                         currObj = objectCSS;
 
-                        // Position the text in front of the camera
                         const distance = 100;
                     
                         objectCSS.position.copy(camera.position);
                         objectCSS.position.z = camera.position.z - distance;
                         objectCSS.position.y += h / 2;
                         objectCSS.quaternion.copy(camera.quaternion);
+
+                        homeButton.position.set(camera.position.x, camera.position.y, camera.position.z - 10); 
+                        homeButton.visible = true;
 
                     });
                 } else {
@@ -359,9 +417,29 @@ function initHeader(obj, i) {
                 currObj = objectCSS;
                 break;
             case 'research':
-                textBox.innerHTML = researchText;
-                objectCSS.visible = true;
-                currObj = objectCSS;
+                if (!skyTransition.isSky) {
+                    skyTransition.transitionToSky(() => {
+                        textBox.innerHTML = researchText;
+                        objectCSS.visible = true;
+                        currObj = objectCSS;
+
+                        // the css object's position is all messed up given the renderer
+                        // has different coordinate scaling. 
+                        objectCSS.position.set(camera.position.x * 10, camera.position.y * 10, camera.position.z * 10);
+                        objectCSS.position.z -= 1000;
+                        objectCSS.position.y += h / 2 * 20;
+                        objectCSS.quaternion.copy(camera.quaternion);
+        
+
+                        homeButton.position.set(camera.position.x, camera.position.y, camera.position.z - 10); 
+                        homeButton.visible = true;
+
+                    });
+                } else {
+                    textBox.innerHTML = researchText;
+                    objectCSS.visible = true;
+                    currObj = objectCSS;
+                }
                 break;
             case 'contact':
                 const mail = document.createElement("a");
@@ -495,9 +573,6 @@ loadImages();
 camera.position.set( eye_world_x, eye_world_y, eye_world_z );
 controls.update();
 
-const underwaterTransition = new UnderwaterTransition(scene, camera, renderer, composer);
-scene.add( underwaterTransition.underwaterScene );
-
 /*
  * Sun and Sky
  * https://threejs.org/examples/?q=water#webgl_shaders_ocean
@@ -509,57 +584,13 @@ const water = new Water(
 water.rotation.x = - Math.PI / 2;
 scene.add( water );
 
-const sun = new THREE.Vector3();
-const sky = new Sky();
-sky.scale.setScalar( isMobile ? 2000 : 10000 );
-scene.add( sky );
-
-const skyUniforms = sky.material.uniforms;
-
-skyUniforms[ 'turbidity' ].value = 10;
-skyUniforms[ 'rayleigh' ].value = 2;
-skyUniforms[ 'mieCoefficient' ].value = 0.001;
-skyUniforms[ 'mieDirectionalG' ].value = 0.75;
-
-var sunParams = {
-    elevation: 0,
-    azimuth: 225
-};
-
-
-const pmremGenerator = new THREE.PMREMGenerator( renderer );
 let renderTarget;
-function updateSun() {
-    const phi = THREE.MathUtils.degToRad( 90 - sunParams.elevation );
-    const theta = THREE.MathUtils.degToRad( sunParams.azimuth );
-
-    sun.setFromSphericalCoords( 1, phi, theta );
-
-    sky.material.uniforms[ 'sunPosition' ].value.copy( sun );
-    water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
-
-    if ( renderTarget !== undefined ) renderTarget.dispose();
-
-    renderTarget = pmremGenerator.fromScene( sky );
-    scene.environment = renderTarget.texture;
-}
-
-// function updateTextPosition() {
-//     // Position the text in front of the camera
-//     const distance = 100; // Adjust this value as needed
-//     objectCSS.position.set(0, 0, 0);
-
-//     // Update the cssScene position to match the camera
-//     cssScene.position.copy(camera.position);
-//     cssScene.quaternion.copy(camera.quaternion);
-// }
 
 // https://stackoverflow.com/questions/11285065/limiting-framerate-in-three-js-to-increase-performance-requestanimationframe
 // limit framerate to 30fps. 
 const clock = new THREE.Clock();
 const interval = 1 / 30;
 
-var sunDir = 'up';
 function animate() {
     requestAnimationFrame( animate );
 
@@ -567,25 +598,7 @@ function animate() {
     
     clock.start();
 
-    water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
-
-    sunParams.azimuth -= 1.0 / 100;
-    if (sunParams.azimuth <= -350) {
-        sunParams.azimuth = 0;
-    }
-    if (sunParams.elevation >= 8) {
-        sunDir = 'down';
-    }else if (sunParams.elevation <= -12) {
-        sunDir = 'up';
-        sunParams.elevation = -10;
-        sunParams.azimuth = 275;
-    }
-    if (sunDir == 'up') {
-        sunParams.elevation += 1.0 / 500; 
-    } else {
-        sunParams.elevation -= 1.0 / 500; 
-    }
-    updateSun();
+    water.material.uniforms[ 'time' ].value += 1.0 / 120.0;
 
     if (nameText !== undefined) {
         nameText.material.uniforms[ 'time' ].value += 1.0 / 360.0;
@@ -597,18 +610,23 @@ function animate() {
         cube.rotation.y += 1/100;
     }
 
+    starField.animate(1/10000);
+
     controls.update();
     if (underwaterTransition.isUnderwater) {
         renderer.render(underwaterTransition.underwaterScene, camera);
-    } else {
+    } else {   
         renderer.render(scene, camera);
     }
 
-    // updateTextPosition();
     cssRenderer.render( cssScene, camera );
 
     TWEEN.update();
     
 };
+
+
+camera.layers.enable(0);
+camera.layers.enable(1);
 
 animate();
