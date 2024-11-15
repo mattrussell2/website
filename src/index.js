@@ -26,6 +26,11 @@ window.mobileCheck = function() {
 const isMobile = window.mobileCheck();
 const isDesktop = !isMobile; 
 
+// Add this right after mobileCheck and before any other code
+if (isMobile) {
+    window.location.replace('https://mattrussell2.github.io/mobile/index.html');
+}
+
 const eye_fixed_x = 0; 
 const eye_fixed_y = 10;
 const eye_fixed_z = 100; // isDesktop ? 100 : 75; 
