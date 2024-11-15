@@ -28,7 +28,7 @@ const isDesktop = !isMobile;
 
 // Add this right after mobileCheck and before any other code
 if (isMobile) {
-    window.location.replace('https://mattrussell2.github.io/mobile/index.html');
+    window.location.replace('https://mrussell.me/mobile/index.html');
 }
 
 const eye_fixed_x = 0; 
