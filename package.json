@@ -32,7 +32,7 @@
   "scripts": {
     "build": "webpack",
     "test": "webpack --watch --mode development",
-    "deploy": "npm run build && gh-pages -d dist",
+    "deploy": "npm run build && cp -r mobile dist &&  gh-pages -d dist",
     "start": "webpack serve --open"
   }
 }
