@@ -126,25 +126,25 @@ const waterOpts = {
 }
 
 const researchText = `I work in the Human-Computer Interaction Lab at Tufts University. We study implicit Brain-Computer interface design and implementation. Specifically, we run human subject studies using functional near-infrared spectroscopy (fNIRS) and/or electroencephalography (EEG), whereby we infer a mental state from the user (e.g. mental workload) for the purpose of adapting an interface towards the user's benefit. Our current work is multidimensional, focusing on: pushing state-of-the-art mental workload interfaces, leveraging measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, as well as inferring cross-task 'horizontal' state-classification from EEG data towards future BCI designs. 
-<br><br>
--- Publications --
-<br>
-M. Russell, A. Shah, G. Blaney, J. Amores, A. Cambon, M. Czerwinski, R.J.K Jacob, "Your Brain on an Interactive LLM" [in review] (2024). 
-<br><br>
-M. Russell, S. Youkeles, A. Shah, E. Lai, R.J.K. Jacob, “Chess, Cognitive Neuroscience, and their Interaction with the MUSE 2 device for BCI” [in review]
-(2024).
-<br><br>
-M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob,"Visualization and Workload with Implicit fNIRS-based BCI", Frontiers in Neuroergonomics (2024) [accepted].
-<br><br>
-A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). <a href="https://www.mdpi.com/2304-6732/6/3/90">link</a>
-<br><br>
-T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management," Proc. Tenth Augmented Human International Conference (2019). <a href="http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf">link</a>
-<br><br>
-L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). <a href="https://www.researchgate.net/publication/329362205_Measuring_the_neural_correlates_of_mindfulness_with_functional_near-infrared_spectroscopy">link</a>
-<br><br>
-L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, and R. Jacob, "This is Your Brain on Interfaces: Enhancing Usability Testing with Functional Near-Infrared Spectroscopy," Proc. ACM CHI 2011 Human Factors in Computing Systems Conference, ACM Press (2011). <a href="https://dl.tufts.edu/concern/pdfs/j6731g17b">link</a>
-<br><br>
-L. Hirshfield, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, “Trust in Human-Computer Interactions as Measured by Frustration, Surprise, and Workload.,” Foundations of Augmented Cognition. Directing the Future of Adaptive Systems. (2011). <a href="https://doi.org/10.1007/978-3-642-21852-1_58">link</a>`
+<h2>Publications</h2>
+<ul>
+<li>M. Russell, A. Shah, G. Blaney, J. Amores, A. Cambon, M. Czerwinski, R.J.K Jacob, "Physiological and Cognitive Effects of Interactive Large Language Models on Human Users: A Multimodal Analysis" [in review].</li>
+<li>M. Russell, S. Youkeles, A. Shah, E. Lai, R.J.K. Jacob, "Decoding Chess Puzzle Play and Standard Cognitive Tasks for BCI: A Low-Cost EEG Study" [in review: final revisions].</li>
+<li>M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob, "Visualization and Workload with Implicit fNIRS-based BCI: Towards a Real-time Memory Prosthesis with fNIRS" [in review].</li>
+<li>A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). <a href="https://www.mdpi.com/2304-6732/6/3/90">link</a></li>
+<li>T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management," Proc. Tenth Augmented Human International Conference (2019). <a href="http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf">link</a></li>
+<li>L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). <a href="https://www.researchgate.net/publication/329362205_Measuring_the_neural_correlates_of_mindfulness_with_functional_near-infrared_spectroscopy">link</a></li>
+<li>L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, and R. Jacob, "This is Your Brain on Interfaces: Enhancing Usability Testing with Functional Near-Infrared Spectroscopy," Proc. ACM CHI 2011 Human Factors in Computing Systems Conference, ACM Press (2011). <a href="https://dl.tufts.edu/concern/pdfs/j6731g17b">link</a></li>
+<li>L. Hirshfield, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, "Trust in Human-Computer Interactions as Measured by Frustration, Surprise, and Workload.," Foundations of Augmented Cognition. Directing the Future of Adaptive Systems. (2011). <a href="https://doi.org/10.1007/978-3-642-21852-1_58">link</a></li>
+</ul>
+<h2>Extended Abstracts</h2>
+<ul>
+<li>M. Russell, Q. Zhong, K. Zheng, K. Hu, J. Santaniello, R.J.K. Jacob, “LLM-Tools' Effects on Users During Complex Decision-Making with FNIRS” [in review]</li>
+<li>M. Russell, W. Xia, S. Youkeles, R.J.K. Jacob, “Neural Correlates of Move Quality During Chess Games: a Low-Cost EEG Study” [in review]</li>
+<li>M. Russell, R.J.K. Jacob, “Very-Low Frequency Oscillations as a Correlate of Neural Activation” [in review]</li>
+<li>M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob,"Visualization and Workload with Implicit fNIRS-based BCI", Frontiers in Neuroergonomics (2024). <a href="https://docs.google.com/document/d/1VdMBq5D_OBP05FAcHxzDrbkEnZ9wTBgS/edit?usp=sharing&ouid=111220556167885590355&rtpof=true&sd=true">link</a></li>
+</ul>
+`
 
 const aboutText = `Welcome! My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, learning, and teaching. I'm currently working on my dissertation, which focuses on measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, developing next-generation workload-based fNIRS interfaces, and inferring cross-task 'horizontal' state-classification from EEG data towards future BCI work. I'm also a teaching assistant for the computer science department, and have been the professor for our online Data Structures course (in C++) twice.
 
