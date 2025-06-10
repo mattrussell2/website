@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { FontLoader } from './three/FontLoader';
 import { TextGeometry } from './three/TextGeometry';
 import { Water } from './three/Water';
-// import { Sky } from './three/Sky';
+import { GLTFLoader } from './three/GLTFLoader.js';
 import { Interaction } from 'three.interaction/src/index.js'; 
 import { CSS3DObject, CSS3DRenderer } from './three/CSS3DRenderer.js';
 import { OrbitControls } from './three/OrbitControls.js';
@@ -126,29 +126,31 @@ const waterOpts = {
 }
 
 const researchText = `I work in the Human-Computer Interaction Lab at Tufts University. We study implicit Brain-Computer interface design and implementation. Specifically, we run human subject studies using functional near-infrared spectroscopy (fNIRS) and/or electroencephalography (EEG), whereby we infer a mental state from the user (e.g. mental workload) for the purpose of adapting an interface towards the user's benefit. Our current work is multidimensional, focusing on: pushing state-of-the-art mental workload interfaces, leveraging measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, as well as inferring cross-task 'horizontal' state-classification from EEG data towards future BCI designs. 
+Google scholar <a href="https://scholar.google.com/citations?authuser=1&user=2jTn8oIAAAAJ">link</a>
 <h2>Publications</h2>
 <ul>
-<li>M. Russell, A. Shah, G. Blaney, J. Amores, A. Cambon, M. Czerwinski, R.J.K Jacob, "Physiological and Cognitive Effects of Interactive Large Language Models on Human Users: A Multimodal Analysis" [in review].</li>
-<li>M. Russell, S. Youkeles, A. Shah, E. Lai, R.J.K. Jacob, "Decoding Chess Puzzle Play and Standard Cognitive Tasks for BCI: A Low-Cost EEG Study" [in review: final revisions].</li>
-<li>M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob, "Visualization and Workload with Implicit fNIRS-based BCI: Towards a Real-time Memory Prosthesis with fNIRS" [in review].</li>
+<li>M. Russell, "Beyond Workload: Paving the Road for the Next Generation of Implicit Prefrontal Cortex Based Brain-Computer Interfaces" PhD Dissertation, Tufts University (2025). <a href="https://dl.tufts.edu/concern/pdfs/b2774940p">link</a></li>
+<li>M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob, "Visualization and Workload with Implicit fNIRS-based BCI: Towards a Real-time Memory Prosthesis with fNIRS" Frontiers in Neuroergonomics (2025). <a href="https://www.frontiersin.org/journals/neuroergonomics/articles/10.3389/fnrgo.2025.1550629/full">link</a></li>
+<li>M. Russell, A. Shah, G. Blaney, J. Amores, M. Czerwinski, R.J.K Jacob, "Neural and Cognitive Impacts of AI: The Influence of Task Subjectivity on Human-LLM Collaboration" [in review]. <a href="https://arxiv.org/abs/2506.04167">link</a></li>
+<li>M. Russell, S. Youkeles, W. Xia, K. Zheng, A. Shah, R.J.K. Jacob, "Neural Signatures Within and Between Chess Puzzle Solving and Standard Cognitive Tasks for Brain-Computer Interfaces: A Low-Cost Electroencephalography Study" [in review]. <a href="https://arxiv.org/abs/2505.07592">link</a></li>
 <li>A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). <a href="https://www.mdpi.com/2304-6732/6/3/90">link</a></li>
-<li>T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management," Proc. Tenth Augmented Human International Conference (2019). <a href="http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf">link</a></li>
+<li>T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management" Proc. Tenth Augmented Human International Conference (2019). <a href="http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf">link</a></li>
 <li>L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). <a href="https://www.researchgate.net/publication/329362205_Measuring_the_neural_correlates_of_mindfulness_with_functional_near-infrared_spectroscopy">link</a></li>
 <li>L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, and R. Jacob, "This is Your Brain on Interfaces: Enhancing Usability Testing with Functional Near-Infrared Spectroscopy," Proc. ACM CHI 2011 Human Factors in Computing Systems Conference, ACM Press (2011). <a href="https://dl.tufts.edu/concern/pdfs/j6731g17b">link</a></li>
 <li>L. Hirshfield, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, "Trust in Human-Computer Interactions as Measured by Frustration, Surprise, and Workload.," Foundations of Augmented Cognition. Directing the Future of Adaptive Systems. (2011). <a href="https://doi.org/10.1007/978-3-642-21852-1_58">link</a></li>
 </ul>
 <h2>Extended Abstracts</h2>
 <ul>
-<li>M. Russell, Q. Zhong, K. Zheng, K. Hu, J. Santaniello, R.J.K. Jacob, “LLM-Tools' Effects on Users During Complex Decision-Making with FNIRS” [in review]</li>
-<li>M. Russell, W. Xia, S. Youkeles, R.J.K. Jacob, “Neural Correlates of Move Quality During Chess Games: a Low-Cost EEG Study” [in review]</li>
-<li>M. Russell, R.J.K. Jacob, “Very-Low Frequency Oscillations as a Correlate of Neural Activation” [in review]</li>
+<li>M. Russell, Q. Zhong, K. Zheng, K. Hu, J. Santaniello, R.J.K. Jacob, “LLM-Tools' Effects on Users During Complex Decision-Making with FNIRS” Neuroadaptive Technologies (2025)</li>
+<li>M. Russell, W. Xia, S. Youkeles, R.J.K. Jacob, “Neural Correlates of Move Quality During Chess Games: a Low-Cost EEG Study” Neuroadaptive Technologies (2025)</li>
+<li>M. Russell, R.J.K. Jacob, “Very-Low Frequency Oscillations as a Correlate of Neural Activation” Neuroadaptive Technologies (2025)</li>
 <li>M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob,"Visualization and Workload with Implicit fNIRS-based BCI", Frontiers in Neuroergonomics (2024). <a href="https://docs.google.com/document/d/1VdMBq5D_OBP05FAcHxzDrbkEnZ9wTBgS/edit?usp=sharing&ouid=111220556167885590355&rtpof=true&sd=true">link</a></li>
 </ul>
 `
 
-const aboutText = `Welcome! My name is Matt Russell, and I'm a PhD candidate in computer science at Tufts University. I love coding, learning, and teaching. I'm currently working on my dissertation, which focuses on measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, developing next-generation workload-based fNIRS interfaces, and inferring cross-task 'horizontal' state-classification from EEG data towards future BCI work. I'm also a teaching assistant for the computer science department, and have been the professor for our online Data Structures course (in C++) twice.
+const aboutText = `Welcome! My name is Matt Russell, PhD. I studied computer science at Tufts University - specifically, human-computer interaction by way of brain-computer interfaces. I love coding, statistics, learning, and teaching. I have recently successfully defended my dissertation, which focuses on the measurement of prefrontal cortex activation using both eeg and fNIRS towards complex neurophysiological states recognition. I have also been a lecturer and teaching assistant for the computer science department.
 
-<br><br>I'm happily married (since January 2016), and have two amazing daughters, born 2018 and 2020. My hobbies include: cooking, chess, crossword puzzles, camping, snowboarding, rock climbing. `
+<br><br>I'm happily married (since January 2016), and have two amazing daughters, born 2018 and 2020. My hobbies include: cooking, chess, crossword puzzles, camping, snowboarding, and rock climbing. `
 
 const teachingText = `-- Courses Taught -- 
 <br>CS 15: Data Structures (C++) [2020 and 2023 summer semesters]
@@ -171,35 +173,128 @@ const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'r-original.svg',
 
 const logopath = './assets/logos/';
 
-var homeButton = new THREE.Group();
-homeButton.cursor = 'pointer';
-const buttonSize = 0.25;
+function create3DHomeButton() {
+    const homeGroup = new THREE.Group();
+    homeGroup.cursor = 'pointer';
+    
+    const loader = new GLTFLoader();
+    
+    // Path to your GLB file
+    const modelPath = './assets/low_poly_house.glb';
+    
+    loader.load(
+        modelPath,
+        function (gltf) {
+            console.log('House model loaded successfully');
+            const model = gltf.scene;
+            
+            // Scale the model down to appropriate size for button
+            model.scale.setScalar(0.05);
+            
+            // Center the model
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center);
+            
+            // Set material to bright so visible
+            model.traverse((child) => {
+                if (child.isMesh) {
+                                        
+                    if (child.material) {
+                        // Create a bright, unlit material
+                        const brightMaterial = new THREE.MeshBasicMaterial({
+                            color: getBrightColorForMesh(child),
+                            transparent: true,
+                            opacity: 0.9
+                        });
+                        
+                        // Copy texture if it exists
+                        if (child.material.map) {
+                            brightMaterial.map = child.material.map;
+                        }
+                        
+                        child.material = brightMaterial;
+                    }                                       
+                }
+            });
+            
+            homeGroup.add(model);
+            
+            // Store reference for animations
+            homeGroup.userData.model = model;
+            homeGroup.userData.originalScale = 0.05;
+            homeGroup.userData.time = 0;
+            
+            console.log('House model added to home button with bright materials');
+        },
+        function (progress) {
+            console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+        },
+        function (error) {
+            console.error('Error loading house model:', error);
+            console.log('Creating fallback procedural house...');
+            
+            // Fallback: Create a bright procedural house
+            const fallbackHouse = createBrightFallbackHouse();
+            homeGroup.add(fallbackHouse);
+        }
+    );
+    
+    return homeGroup;
+}
 
-// Create the circular background
-const circleGeometry = new THREE.CircleGeometry(buttonSize, 32);
-const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.5 });
-const circle = new THREE.Mesh(circleGeometry, circleMaterial);
-homeButton.add(circle);
+function getBrightColorForMesh(mesh) {
+    const name = (mesh.name || mesh.material.name || '').toLowerCase();
+    
+    // Assign colors based on common house part names
+    if (name.includes('roof')) {
+        return 0x8B0000; // Dark red for roof
+    } else if (name.includes('wall') || name.includes('house') || name.includes('base')) {
+        return 0xF5DEB3; // Wheat color for walls
+    } else if (name.includes('door')) {
+        return 0x654321; // Brown for door
+    } else if (name.includes('window')) {
+        return 0x87CEEB; // Sky blue for windows
+    } else if (name.includes('chimney')) {
+        return 0x696969; // Gray for chimney
+    } else {
+        return 0xFFFFFF; // Default white
+    }
+}
+    
+function animateHomeButton() {
+    if (homeButton && homeButton.visible) {
+        homeButton.rotation.y += 0.005;
+    }
+}
 
-// Create the arrow
-const arrowShape = new THREE.Shape();
-arrowShape.moveTo(0, buttonSize * 0.5);
-arrowShape.lineTo(-buttonSize * 0.55, -buttonSize * 0.2);
-arrowShape.lineTo(-buttonSize * 0.3, -buttonSize * 0.2);
-arrowShape.lineTo(-buttonSize * 0.3, -buttonSize * 0.5);
-arrowShape.lineTo(buttonSize * 0.3, -buttonSize * 0.5);
-arrowShape.lineTo(buttonSize * 0.3, -buttonSize * 0.2);
-arrowShape.lineTo(buttonSize * 0.55, -buttonSize * 0.2);
-arrowShape.lineTo(0, buttonSize * 0.5);
+function initializeNewHomeButton() {
+    // Remove old home button if it exists
+    if (typeof homeButton !== 'undefined' && homeButton) {
+        scene.remove(homeButton);
+        if (underwaterTransition && underwaterTransition.underwaterScene) {
+            underwaterTransition.underwaterScene.remove(homeButton);
+        }
+    }
+    
+    // Create new 3D home button
+    homeButton = create3DHomeButton();
+    homeButton.visible = false;
+    
+    // Add to scenes
+    scene.add(homeButton);
+    if (underwaterTransition && underwaterTransition.underwaterScene) {
+        underwaterTransition.underwaterScene.add(homeButton);
+    }
+    
+    // Make it clickable
+    homeButton.userData = { clickable: true };
+    homeButton.on('click', (ev) => { goHome(); });
+    
+    return homeButton;
+}
 
-const arrowGeometry = new THREE.ShapeGeometry(arrowShape);
-const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-homeButton.add(arrow);
-homeButton.visible = false;
-
-scene.add(homeButton);
-underwaterTransition.underwaterScene.add(homeButton);
+var homeButton = initializeNewHomeButton();
 
 function goHome() {
     objectCSS.visible = false;
@@ -423,6 +518,7 @@ function initHeader(obj, i) {
                 textBox.innerHTML = teachingText;
                 currObj = objectCSS;
                 resetCSS(objectCSS);
+                objectCSS.position.y += h/2 * 10; // move above buttons
                 break;
             case 'research':
                 if (!skyTransition.isSky) {
@@ -610,6 +706,8 @@ function animate() {
     }
 
     starField.animate(1/10000);
+
+    animateHomeButton();
 
     controls.update();
     if (underwaterTransition.isUnderwater) {

@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@babel/core": "^7.25.8",
+    "@babel/core": "^7.27.4",
     "@babel/preset-env": "^7.25.8",
     "@react-three/a11y": "^3.0.0",
     "@react-three/fiber": "^8.16.6",
