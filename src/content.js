@@ -123,7 +123,7 @@ const tools = [
 
 export const software = `
   <p class="eyebrow">Software</p>
-  <p>Full-stack software generalist, comfortable picking up any language or framework the problem calls for. Strong on CI/CD, cloud deployment, and the numerical side: optimization, statistics, and simulation tooling for scientists.</p>
+  <p>Software generalist, comfortable picking up any language or framework across the full stack. Strong on CI/CD, cloud deployments, optimization, statistics, and simulation tooling for scientists.</p>
   <h2>Toolset</h2>
   <ul class="tools">
     ${tools.map(([name, icon, cls]) => `<li>${icon ? `<img class="${cls || ''}" src="./assets/logos/${icon}" alt="">` : ''}${name}</li>`).join('')}
