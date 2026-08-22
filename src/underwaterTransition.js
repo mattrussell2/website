@@ -4,22 +4,23 @@ import * as THREE from 'three';
 import { Water } from './three/Water';
 import { TWEEN } from './three/tween.module.min'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { UnderwaterEnvironment } from './underwaterScene.js';
 
 export class UnderwaterTransition {
-    constructor(mainScene, camera, renderer, composer) {
+    constructor(mainScene, camera, renderer, composer, waterNormals) {
         this.mainScene = mainScene;
         this.camera = camera;
         this.renderer = renderer;
         this.composer = composer;
 
         this.underwaterScene = new THREE.Scene();
-        this.underwaterScene.background = new THREE.Color(0x00C2BA);
+        this.environment = new UnderwaterEnvironment(this.underwaterScene, camera, waterNormals);
 
         this.setupUnderwaterEffect();
         this.isUnderwater = false;
 
         // Add a fog to the main scene for transition effect
-        this.mainScene.fog = new THREE.FogExp2(0x00C2BA, 0.0);
+        this.mainScene.fog = new THREE.FogExp2(0x12c9bf, 0.0);
 
         this.listener = new THREE.AudioListener();
         this.camera.add(this.listener);
@@ -133,6 +134,6 @@ export class UnderwaterTransition {
 
     update(deltaTime) {
         this.underwaterPass.uniforms.time.value += deltaTime;
-        TWEEN.update();
+        this.environment.update(deltaTime);
     }
 }

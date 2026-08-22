@@ -46,7 +46,7 @@ export class StarField {
                     vColor = color;
                     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                     float twinkle = sin(time * 0.1 + position.x * 0.05) * 0.5 + 0.7;  // Much slower twinkle, less dramatic
-                    gl_PointSize = size * (300.0 / length(mvPosition.xyz)) * twinkle;
+                    gl_PointSize = max(2.5, size * (300.0 / length(mvPosition.xyz)) * twinkle);   // never sub-pixel: sub-pixel dots shimmer as the dome drifts
                     gl_Position = projectionMatrix * mvPosition;
                 }
             `,
@@ -54,10 +54,10 @@ export class StarField {
                 varying vec3 vColor;
 
                 void main() {
-                    vec2 center = gl_PointCoord - vec2(0.5);
-                    float dist = length(center);
-                    if (dist > 0.5) discard;
-                    float alpha = 1.0 - smoothstep(0.3, 0.5, dist);
+                    vec2 c = gl_PointCoord - vec2(0.5);
+                    float d = length(c) * 2.0;
+                    if (d > 1.0) discard;
+                    float alpha = pow(1.0 - d, 1.8);   // bright core, soft falloff
                     gl_FragColor = vec4(vColor, alpha);
                 }
             `,
@@ -71,10 +71,10 @@ export class StarField {
         scene.add(this.stars);
     }
 
-    animate(deltaTime) {
-        if (this.stars && this.stars.material.uniforms) {
-            this.stars.material.uniforms.time.value += deltaTime * 0.0005;  // Much slower time advancement
-            this.stars.rotation.y += deltaTime * 0.01;
-        }
+    animate(dt) {
+        // dt is seconds. The twinkle term is effectively static (as in the original);
+        // the dome drifts very slowly.
+        this.stars.material.uniforms.time.value += dt * 0.02;
+        this.stars.rotation.y += dt * 0.0006;
     }
 }

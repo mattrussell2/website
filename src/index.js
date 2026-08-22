@@ -5,10 +5,9 @@ import * as THREE from 'three';
 import { FontLoader } from './three/FontLoader';
 import { TextGeometry } from './three/TextGeometry';
 import { Water } from './three/Water';
-import { GLTFLoader } from './three/GLTFLoader.js';
-import { Interaction } from 'three.interaction/src/index.js'; 
-import { CSS3DObject, CSS3DRenderer } from './three/CSS3DRenderer.js';
+import { Interaction } from 'three.interaction/src/index.js';
 import { OrbitControls } from './three/OrbitControls.js';
+import * as content from './content.js';
 import { UnderwaterTransition } from './underwaterTransition.js';
 import { SkyTransition } from './skyTransition.js';
 import { EffectComposer } from './three/EffectComposer.js';
@@ -26,11 +25,6 @@ window.mobileCheck = function() {
 const isMobile = window.mobileCheck();
 const isDesktop = !isMobile; 
 
-// Add this right after mobileCheck and before any other code
-if (isMobile) {
-    window.location.replace('https://mrussell.me/mobile/index.html');
-}
-
 const eye_fixed_x = 0; 
 const eye_fixed_y = 10;
 const eye_fixed_z = 100; // isDesktop ? 100 : 75; 
@@ -40,8 +34,7 @@ const eye_world_y = 10;
 const eye_world_z = isDesktop ? 115 : 100;
 
 const scene = new THREE.Scene();
-const cssScene = new THREE.Scene();
-cssScene.scale.set(0.1, 0.1, 0.1);
+scene.background = new THREE.Color(0x04070f);   // deep navy, not pure black
 
 const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.set( eye_fixed_x, eye_fixed_y, eye_fixed_z );
@@ -52,20 +45,13 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 document.body.appendChild( renderer.domElement );
 
-const cssRenderer = new CSS3DRenderer();
-cssRenderer.setSize(window.innerWidth, window.innerHeight);
-cssRenderer.domElement.style.position = 'absolute';
-cssRenderer.domElement.style.top = '0';
-cssRenderer.domElement.style.left = '0';
-cssRenderer.domElement.style.pointerEvents = 'none';
-document.body.appendChild(cssRenderer.domElement);
-
 const composer = new EffectComposer( renderer );
 const controls = new OrbitControls( camera, renderer.domElement );
+controls.enabled = false;
 const interaction = new Interaction(renderer, scene, camera); // mouse interaction
 
-const underwaterTransition = new UnderwaterTransition(scene, camera, renderer, composer);
-scene.add( underwaterTransition.underwaterScene );
+const waterNormals = new THREE.TextureLoader().load( './assets/waternormals.jpeg', tex => tex.wrapS = tex.wrapT = THREE.RepeatWrapping );
+const underwaterTransition = new UnderwaterTransition(scene, camera, renderer, composer, waterNormals);
 
 const skyTransition = new SkyTransition(scene, camera, renderer, controls);
 
@@ -95,28 +81,38 @@ var w = visibleWidthAtZDepth(z_depth, camera);
 var h = visibleHeightAtZDepth(z_depth, camera);
 var ledge = -w / 2;
 
-var textBox = document.createElement( 'div' );
-textBox.style.width = 'auto';
-textBox.style.height = 'auto';
-textBox.style.backgroundColor = 'rgba(256, 256, 0, 100)'; //'rgba(0, 194, 186, 0.8)';
-textBox.style.color = '#000000';
-textBox.style.padding = '20px';
-textBox.style.borderRadius = '10px';
-textBox.style.overflow = 'auto';
-textBox.style.fontSize = '16px';
-textBox.style.display = 'flex';
-textBox.style.alignItems = 'center';
-textBox.style.justifyContent = 'center';
-textBox.style.transform = 'translate(-50%, -50%)';
+/*
+ * Content panel: a flat DOM overlay on top of the scene.
+ * 'center' = centered over a full-screen scene (about / research)
+ */
+const panel = document.getElementById('panel');
+const chromeNav = document.querySelector('#chrome nav');
+const PANEL_LAYOUT = { about: 'center', research: 'center', teaching: 'center', software: 'center' };
 
-var objectCSS = new CSS3DObject( textBox );
-objectCSS.visible = false;
-cssScene.add( objectCSS );
+function showPanel(section) {
+    panel.innerHTML = content[section];
+    panel.className = PANEL_LAYOUT[section];
+    panel.scrollTop = 0;
+    void panel.offsetWidth;          // flush styles so the open transition animates
+    panel.classList.add('open');
+    setCurrentNav(section);
+}
+
+function hidePanel() {
+    panel.classList.remove('open');
+    setCurrentNav(null);
+}
+
+function setCurrentNav(section) {
+    for (const b of chromeNav.querySelectorAll('button')) {
+        b.toggleAttribute('aria-current', b.dataset.section === section);
+    }
+}
 
 const waterOpts = {
     textureWidth: isDesktop ? 512 : 128,
     textureHeight: isDesktop ? 512 : 128,
-    waterNormals: new THREE.TextureLoader().load( './assets/waternormals.jpeg', tex => tex.wrapS = tex.wrapT = THREE.RepeatWrapping ),
+    waterNormals,
     sunDirection: new THREE.Vector3(),
     sunColor: 0xffffff,
     waterColor: 0x0fffff,
@@ -124,45 +120,6 @@ const waterOpts = {
     fog: scene.fog !== undefined, 
     shininess: 100,
 }
-
-const researchText = `I work in the Human-Computer Interaction Lab at Tufts University. We study implicit Brain-Computer interface design and implementation. Specifically, we run human subject studies using functional near-infrared spectroscopy (fNIRS) and/or electroencephalography (EEG), whereby we infer a mental state from the user (e.g. mental workload) for the purpose of adapting an interface towards the user's benefit. Our current work is multidimensional, focusing on: pushing state-of-the-art mental workload interfaces, leveraging measurement of mental workload using fNIRS towards the investigation of LLM-based interfaces, as well as inferring cross-task 'horizontal' state-classification from EEG data towards future BCI designs. 
-Google scholar <a href="https://scholar.google.com/citations?authuser=1&user=2jTn8oIAAAAJ">link</a>
-<h2>Publications</h2>
-<ul>
-<li>M. Russell, "Beyond Workload: Paving the Road for the Next Generation of Implicit Prefrontal Cortex Based Brain-Computer Interfaces" PhD Dissertation, Tufts University (2025). <a href="https://dl.tufts.edu/concern/pdfs/b2774940p">link</a></li>
-<li>M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob, "Visualization and Workload with Implicit fNIRS-based BCI: Towards a Real-time Memory Prosthesis with fNIRS" Frontiers in Neuroergonomics (2025). <a href="https://www.frontiersin.org/journals/neuroergonomics/articles/10.3389/fnrgo.2025.1550629/full">link</a></li>
-<li>M. Russell, A. Shah, G. Blaney, J. Amores, M. Czerwinski, R.J.K Jacob, "Neural and Cognitive Impacts of AI: The Influence of Task Subjectivity on Human-LLM Collaboration" [in review]. <a href="https://arxiv.org/abs/2506.04167">link</a></li>
-<li>M. Russell, S. Youkeles, W. Xia, K. Zheng, A. Shah, R.J.K. Jacob, "Neural Signatures Within and Between Chess Puzzle Solving and Standard Cognitive Tasks for Brain-Computer Interfaces: A Low-Cost Electroencephalography Study" [in review]. <a href="https://arxiv.org/abs/2505.07592">link</a></li>
-<li>A. Bosworth, M. Russell, and R.J.K Jacob, "fNIRS as an Input to Brain-Computer Interfaces: A Review of Research from the Tufts Human-Computer Interaction Laboratory," Photonics (2019). <a href="https://www.mdpi.com/2304-6732/6/3/90">link</a></li>
-<li>T. Shibata, A. Borisenko, A. Hakone, T. August, L. Deligiannidis, C.H. Yu, M. Russell, A. Olwal, and R.J.K. Jacob, "An Implicit Dialogue Injection System for Interruption Management" Proc. Tenth Augmented Human International Conference (2019). <a href="http://www.cs.tufts.edu/~jacob/papers/shibata.ah19.pdf">link</a></li>
-<li>L. Hirshfield, D. Bergen-Cico, M. Costa, R.J.K. Jacob, S. Hincks, M. Russell, "Measuring the Neural Correlates of Mindfulness with Functional Near-Infrared Spectroscopy,"Empirical Studies of Contemplative Practices (2018). <a href="https://www.researchgate.net/publication/329362205_Measuring_the_neural_correlates_of_mindfulness_with_functional_near-infrared_spectroscopy">link</a></li>
-<li>L. Hirshfield, R. Gulotta, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, and R. Jacob, "This is Your Brain on Interfaces: Enhancing Usability Testing with Functional Near-Infrared Spectroscopy," Proc. ACM CHI 2011 Human Factors in Computing Systems Conference, ACM Press (2011). <a href="https://dl.tufts.edu/concern/pdfs/j6731g17b">link</a></li>
-<li>L. Hirshfield, S. Hirshfield, S. Hincks, M. Russell, R. Ward, T. Williams, "Trust in Human-Computer Interactions as Measured by Frustration, Surprise, and Workload.," Foundations of Augmented Cognition. Directing the Future of Adaptive Systems. (2011). <a href="https://doi.org/10.1007/978-3-642-21852-1_58">link</a></li>
-</ul>
-<h2>Extended Abstracts</h2>
-<ul>
-<li>M. Russell, Q. Zhong, K. Zheng, K. Hu, J. Santaniello, R.J.K. Jacob, “LLM-Tools' Effects on Users During Complex Decision-Making with FNIRS” Neuroadaptive Technologies (2025)</li>
-<li>M. Russell, W. Xia, S. Youkeles, R.J.K. Jacob, “Neural Correlates of Move Quality During Chess Games: a Low-Cost EEG Study” Neuroadaptive Technologies (2025)</li>
-<li>M. Russell, R.J.K. Jacob, “Very-Low Frequency Oscillations as a Correlate of Neural Activation” Neuroadaptive Technologies (2025)</li>
-<li>M. Russell, S. Hincks, L. Wang, A. Babar, Z. Chen, Z. White, R.J.K Jacob,"Visualization and Workload with Implicit fNIRS-based BCI", Frontiers in Neuroergonomics (2024). <a href="https://docs.google.com/document/d/1VdMBq5D_OBP05FAcHxzDrbkEnZ9wTBgS/edit?usp=sharing&ouid=111220556167885590355&rtpof=true&sd=true">link</a></li>
-</ul>
-`
-
-const aboutText = `Welcome! My name is Matt Russell, PhD. I studied computer science at Tufts University - specifically, human-computer interaction by way of brain-computer interfaces. I love coding, statistics, learning, and teaching. I have recently successfully defended my dissertation, which focuses on the measurement of prefrontal cortex activation using both eeg and fNIRS towards complex neurophysiological states recognition. I have also been a lecturer and teaching assistant for the computer science department.
-
-<br><br>I'm happily married (since January 2016), and have two amazing daughters, born 2018 and 2020. My hobbies include: cooking, chess, crossword puzzles, camping, snowboarding, and rock climbing. `
-
-const teachingText = `-- Courses Taught -- 
-<br>CS 15: Data Structures (C++) [2020 and 2023 summer semesters]
-<br><br>
--- Courses TA'd -- 
-<br>CS 175: Computer Graphics (C++) [2 semesters]
-<br>CS 15: Data Structures (C++) [7 semesters]
-<br>CS 50CP: Concurrency (Erlang, Python)
-<br>CS 116: Cybersecurity 
-<br>CS 10: Introduction to Computer Science (Python)
-<br>
-`
 
 const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'r-original.svg', 
 		        'javascript-original.svg', 'java-original.svg',
@@ -173,191 +130,52 @@ const pgimgs = ['python-plain.svg', 'cplusplus-original.svg', 'r-original.svg',
 
 const logopath = './assets/logos/';
 
-function create3DHomeButton() {
-    const homeGroup = new THREE.Group();
-    homeGroup.cursor = 'pointer';
-    
-    const loader = new GLTFLoader();
-    
-    // Path to your GLB file
-    const modelPath = './assets/low_poly_house.glb';
-    
-    loader.load(
-        modelPath,
-        function (gltf) {
-            console.log('House model loaded successfully');
-            const model = gltf.scene;
-            
-            // Scale the model down to appropriate size for button
-            model.scale.setScalar(0.05);
-            
-            // Center the model
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            model.position.sub(center);
-            
-            // Set material to bright so visible
-            model.traverse((child) => {
-                if (child.isMesh) {
-                                        
-                    if (child.material) {
-                        // Create a bright, unlit material
-                        const brightMaterial = new THREE.MeshBasicMaterial({
-                            color: getBrightColorForMesh(child),
-                            transparent: true,
-                            opacity: 0.9
-                        });
-                        
-                        // Copy texture if it exists
-                        if (child.material.map) {
-                            brightMaterial.map = child.material.map;
-                        }
-                        
-                        child.material = brightMaterial;
-                    }                                       
-                }
-            });
-            
-            homeGroup.add(model);
-            
-            // Store reference for animations
-            homeGroup.userData.model = model;
-            homeGroup.userData.originalScale = 0.05;
-            homeGroup.userData.time = 0;
-            
-            console.log('House model added to home button with bright materials');
-        },
-        function (progress) {
-            console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
-        },
-        function (error) {
-            console.error('Error loading house model:', error);
-            console.log('Creating fallback procedural house...');
-            
-            // Fallback: Create a bright procedural house
-            const fallbackHouse = createBrightFallbackHouse();
-            homeGroup.add(fallbackHouse);
-        }
-    );
-    
-    return homeGroup;
-}
-
-function getBrightColorForMesh(mesh) {
-    const name = (mesh.name || mesh.material.name || '').toLowerCase();
-    
-    // Assign colors based on common house part names
-    if (name.includes('roof')) {
-        return 0x8B0000; // Dark red for roof
-    } else if (name.includes('wall') || name.includes('house') || name.includes('base')) {
-        return 0xF5DEB3; // Wheat color for walls
-    } else if (name.includes('door')) {
-        return 0x654321; // Brown for door
-    } else if (name.includes('window')) {
-        return 0x87CEEB; // Sky blue for windows
-    } else if (name.includes('chimney')) {
-        return 0x696969; // Gray for chimney
-    } else {
-        return 0xFFFFFF; // Default white
-    }
-}
-    
-function animateHomeButton() {
-    if (homeButton && homeButton.visible) {
-        homeButton.rotation.y += 0.005;
-    }
-}
-
-function initializeNewHomeButton() {
-    // Remove old home button if it exists
-    if (typeof homeButton !== 'undefined' && homeButton) {
-        scene.remove(homeButton);
-        if (underwaterTransition && underwaterTransition.underwaterScene) {
-            underwaterTransition.underwaterScene.remove(homeButton);
-        }
-    }
-    
-    // Create new 3D home button
-    homeButton = create3DHomeButton();
-    homeButton.visible = false;
-    
-    // Add to scenes
-    scene.add(homeButton);
-    if (underwaterTransition && underwaterTransition.underwaterScene) {
-        underwaterTransition.underwaterScene.add(homeButton);
-    }
-    
-    // Make it clickable
-    homeButton.userData = { clickable: true };
-    homeButton.on('click', (ev) => { goHome(); });
-    
-    return homeButton;
-}
-
-var homeButton = initializeNewHomeButton();
-
-function goHome() {
-    objectCSS.visible = false;
-    if (underwaterTransition.isUnderwater) {
-        underwaterTransition.transitionToHome();
-    }else if (skyTransition.isSky) {
-        skyTransition.transitionToHome();
-    }  
-    homeButton.visible = false;
-}
-
-// Make the button clickable
-homeButton.userData = { clickable: true };
-homeButton.on( 'click', (ev) => { goHome() } );
-
 var nameText;
 var nameGlow;
-var headers = [];
+
+// palette shared with index.html (--accent-2)
+// Name colors, each a harmony of the water's hue (187°). Sky blue is the default;
+// easter egg: number keys 1-8 swap between them.
+const NAME_TRIALS = [
+    ['1 orchid (current)',        0xC9A0E8],
+    ['2 complement coral 7°',     0xF9A094],
+    ['3 split-comp rose 337°',    0xF994BB],
+    ['4 split-comp amber 37°',    0xF9D394],
+    ['5 triad magenta 307°',      0xF994ED],
+    ['6 triad chartreuse 67°',    0xEDF994],
+    ['7 tetrad violet 277°',      0xD394F9],
+    ['8 analogous sky 217°',      0x94BBF9],
+];
+const NAME_GLOW = NAME_TRIALS[7][1];
+window.addEventListener('keydown', (ev) => {
+    const i = parseInt(ev.key, 10) - 1;
+    if (i >= 0 && i < NAME_TRIALS.length && nameGlow) nameGlow.material.color.set(NAME_TRIALS[i][1]);
+});
 var plBoxes = [];
 
-var nameSize = 7;
-var headerSize = 2;
+var nameSize = isMobile ? 5 : 4.3;
 var plCubeDim = 2.25;
 
 var cube;
 
-const headerTxt = ['about', 'research', 'projects', 'teaching', 'resume', 'contact'];
+const SECTIONS = ['about', 'research', 'software', 'teaching', 'resume', 'contact'];
 
 window.addEventListener( 'resize', onWindowResize ); 
 
 function onWindowResize() {
-
-    camera.position.set( eye_fixed_x, eye_fixed_y, eye_fixed_z );
-
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
-    cssRenderer.setSize( window.innerWidth, window.innerHeight );
-    
+
     w = visibleWidthAtZDepth(z_depth, camera);
     h = visibleHeightAtZDepth(z_depth, camera);
-    nameSize = 7;
-    headerSize = 2;
+    nameSize = isMobile ? 5 : 4.3;
     plCubeDim = 2.25;
     ledge = -w / 2;
 
     loadText();
     initCube();
     loadImages();
-
-    camera.position.set( eye_world_x, eye_world_y, eye_world_z );
-    controls.update();
-
-    if (objectCSS.visible) {
-        const distance = 100;
-        const verticalOffset = h / 4;
-        objectCSS.position.copy(camera.position);
-        objectCSS.position.z = camera.position.z - distance;
-        objectCSS.position.y -= verticalOffset;
-        objectCSS.quaternion.copy(camera.quaternion);
-    }
-    controls.update()
-
 }
 
 function make_image_material(fname) {
@@ -370,7 +188,6 @@ function initCube() {
     let is_visible = false; 
 
     if ( cube !== undefined ) {
-        console.log("removing cube");
         is_visible = cube.visible;
         scene.remove(cube);
     }
@@ -386,7 +203,6 @@ function initCube() {
     cube.cursor = 'pointer';
     cube.on( 'click', (ev) => click(ev) );
     function click(ev){     
-        console.log(ev.intersects[0].faceIndex);
         switch (ev.intersects[0].faceIndex) {
             case 0: 
             case 1: 
@@ -416,15 +232,17 @@ function initCube() {
     }
     scene.add(cube);
 
-    if ( is_visible ) { 
-        const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
-        const d = h - yCurr - 15;
-        cube.position.set(0, yCurr + d/3, 30);
-        cube.scale.set(1, 1, 1); 
-        cube.rotation.y = THREE.MathUtils.degToRad(55);
-        cube.rotation.z = THREE.MathUtils.degToRad(45);
-        currObj = cube;
-    }
+    if ( is_visible ) placeCube();
+}
+
+// Park the cube beside the centered software card, at the name's depth (above it on phones).
+function placeCube() {
+    const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
+    const d = h - yCurr - 15;
+    cube.position.set(isMobile ? 0 : w * 0.53, isMobile ? yCurr + d/2 : 4, eye_fixed_z - z_depth);
+    cube.scale.setScalar(isMobile ? 0.5 : 0.6);
+    cube.rotation.y = THREE.MathUtils.degToRad(55);
+    cube.rotation.z = THREE.MathUtils.degToRad(45);
 }
 
 /*
@@ -457,164 +275,117 @@ function loadImages() {
     pgimgs.forEach( (imgName, i) => loadTexture( imgName, -imgw / 2.0 + wDelta / 2.0 + wDelta * i, imgy, imgz ) );
 }
 
-function resetCSS(objectCSS, z) {
-    objectCSS.visible = true;
-    objectCSS.position.copy(camera.position);
-
-    // CSS Renderer scaling is wonky so make manual adjustments. 
-    if (camera.position.y > 100) {
-        objectCSS.position.x *= 10;
-        objectCSS.position.y = objectCSS.position.y * 10 + h/2 * 20; 
-        objectCSS.position.z = objectCSS.position.z * 10 - 1000;
-    }
-
-    if (isMobile) {
-        objectCSS.position.z -= 5000;
-        objectCSS.position.y += h/2 * 40;
-    }
-
-    objectCSS.quaternion.copy(camera.quaternion);
+/*
+ * Navigation state machine.
+ *
+ *   world:   'home' | 'underwater' (about) | 'sky' (research)
+ *   current: the open section, or null when at home with nothing open
+ *
+ * Clicking the active section returns home. Clicking a different section goes
+ * there directly; if that means changing world (e.g. underwater -> sky) the
+ * intermediate surfacing runs automatically, then the next move starts.
+ */
+// The dive (about) and rocket launch (research) are kept as a future easter egg; with
+// travel off (default): every section is a panel over the home scene. Press M to toggle.
+var travelEgg = false;
+function worldOf(section) {
+    if (!travelEgg) return 'home';
+    return { about: 'underwater', research: 'sky' }[section] || 'home';
 }
+window.addEventListener('keydown', (ev) => {
+    if (ev.key.toLowerCase() !== 'm' || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    travelEgg = !travelEgg;
+    // if a section is open and its world just changed, travel there (or come home) now
+    if (current && !busy) { const sec = current; closeCurrent(); goTo(sec); }
+    else if (!travelEgg && world !== 'home' && !busy) goHome();
+});
 
-var currVis;
-var currObj;
+var current = null;         // open section
+var world = 'home';         // where the camera is
+var busy = false;           // a camera transition is running
+var queued = null;          // section requested during a transition
 
-function initHeader(obj, i) {
-    
-    obj.on( 'click', (ev) => { console.log("clicked!"); clickHeader(ev, i) } );
-        
-    function clickHeader(ev, i) {
-        objectCSS.visible = false;
-        cube.visible = false;
-        currObj = null;
-        switch ( headerTxt[i] ) {
-            case 'about':
-                if (!underwaterTransition.isUnderwater) {
-                    underwaterTransition.transitionToUnderwater(() => {
-                        textBox.innerHTML = aboutText;
-                        currObj = objectCSS;
-                        resetCSS(objectCSS);
-                        homeButton.position.set(camera.position.x, camera.position.y, camera.position.z - 10); 
-                        homeButton.visible = true;
-                    });
-                } else {
-                    // If already underwater, just show the content immediately
-                    textBox.innerHTML = aboutText;
-                    objectCSS.visible = true;
-                    currObj = objectCSS;
-                }
-                break;
-            case 'projects':                
-                const yCurr = nameText.position.y + nameText.geometry.boundingBox.max.y;
-                const d = h - yCurr - 15;
-                cube.position.set(0, yCurr + d/3, 30);
-                cube.scale.set(1, 1, 1); 
-                cube.rotation.y = THREE.MathUtils.degToRad(55);
-                cube.rotation.z = THREE.MathUtils.degToRad(45);
-                cube.visible = true;
-                currObj = cube;
-                break;
-            case 'teaching':
-                textBox.innerHTML = teachingText;
-                currObj = objectCSS;
-                resetCSS(objectCSS);
-                objectCSS.position.y += h/2 * 10; // move above buttons
-                break;
-            case 'research':
-                if (!skyTransition.isSky) {
-                    skyTransition.transitionToSky(() => {
-                        textBox.innerHTML = researchText;
-                        currObj = objectCSS;
-                        resetCSS(objectCSS);
-                        homeButton.position.set(camera.position.x, camera.position.y, camera.position.z - 10); 
-                        homeButton.visible = true;
 
-                    });
-                } else {
-                    textBox.innerHTML = researchText;
-                    objectCSS.visible = true;
-                    currObj = objectCSS;
-                }
-                break;
-            case 'contact':
-                const mail = document.createElement("a");
-                mail.href = "mailto:mrussell@cs.tufts.edu";
-                mail.click();
-                break;
-            case 'resume':
-                window.open('./assets/resume.pdf', '_blank');
-                break;
-        }
-        if ( currVis === headerTxt[i] && obj !== null ) {
-            currObj.visible = false;
-            currVis = null;
-        } else {
-            currVis = headerTxt[i];
-        }
+function setAway(away) { document.body.classList.toggle('away', away); }
+
+/* Camera moves. Each resolves to the new world and then runs `done`. */
+function moveTo(targetWorld, done) {
+    if (world === targetWorld) { done(); return; }
+    busy = true;
+    const finish = () => { world = targetWorld; busy = false; done(); flushQueue(); };
+
+    if (world === 'home' && targetWorld === 'underwater') {
+        underwaterTransition.transitionToUnderwater(finish);
+    } else if (world === 'home' && targetWorld === 'sky') {
+        skyTransition.transitionToSky(finish);
+    } else if (world === 'underwater' && targetWorld === 'home') {
+        underwaterTransition.transitionToHome(finish);
+    } else if (world === 'sky' && targetWorld === 'home') {
+        skyTransition.transitionToHome(finish);
+    } else {
+        // underwater <-> sky: surface first, then keep going
+        moveTo('home', () => moveTo(targetWorld, done));
+        return;
     }
 }
 
-function createHeader() {
-    for (let header of headers) {
-        for (let obj of header) {
-            scene.remove( obj );
-        }
-    }
-    headers.length = 0;
+function flushQueue() {
+    if (queued && !busy) { const q = queued; queued = null; goTo(q); }
+}
 
-    const headerOpts = waterOpts;
-    for (let [i, header] of headerTxt.entries()) {
-        let textGeo = new TextGeometry( header, 
-                                    {
-                                        font: fnt,
-                                        size: headerSize,
-                                        depth: 0.5,
-                                        curveSegments: 12
-                                    });
-        textGeo.computeBoundingBox();
-        let text = new Water( textGeo, headerOpts);
-        text.cursor = 'pointer';
-        text.minFilter = THREE.LinearFilter; //new
-        scene.add( text ); 
+function closeCurrent() {
+    hidePanel();
+    if (cube) cube.visible = false;
+    current = null;
+}
 
-        const glowMaterial = new THREE.MeshBasicMaterial({ color: 0x5C295C, transparent: false, opacity: 0.25 });
-        const textGlow = new THREE.Mesh(textGeo, glowMaterial);
-        textGlow.scale.multiplyScalar(1.02);
-        scene.add(textGlow);
+function goHome() {
+    closeCurrent();
+    setAway(false);
+    moveTo('home', () => {});
+}
 
-        // on mobile, seems that only the front-face is clickable, so make the boxes really tall. 
-        const box = new THREE.Mesh(new THREE.BoxGeometry( textGeo.boundingBox.max.x, textGeo.boundingBox.max.y * isDesktop ? 3 : 10, 10 ), 
-                                    new THREE.MeshBasicMaterial( { color: 0x000000, transparent:true, opacity:0.0 } ));
-        box.cursor = 'pointer';
-        
-        scene.add( box );
+/* Entry point for every nav click. */
+function goTo(section) {
+    if (section === 'contact') { window.location.href = 'mailto:mrussell@cs.tufts.edu'; return; }
+    if (section === 'resume')  { window.open('./assets/resume.pdf', '_blank'); return; }
+    if (section === 'home')    { queued = null; goHome(); return; }
 
-        initHeader( text, i );
-        initHeader( box, i );
-                
-        headers.push( [ text, box, textGlow ] );
-        
-    }
-    let fullHeaderSpace = headers.reduce( (acc, [text, box]) => acc - text.geometry.boundingBox.max.x, w );
-    let headerSpace = fullHeaderSpace * .75;
-    let headerDelta = headerSpace / headerTxt.length;
-    let pos = new THREE.Vector3;
-    
-    pos.x = ledge + headerDelta / 2 + (fullHeaderSpace - headerSpace) / 2; 
-    pos.y = 1;
-    pos.z = eye_fixed_z - z_depth;
-    for ( let [text, box, textGlow] of headers ) {
-        text.position.set( pos.x, pos.y, pos.z );
-        box.position.set( pos.x + text.geometry.boundingBox.max.x / 2.0, pos.y, pos.z ); 
-        textGlow.position.set(pos.x, pos.y, pos.z);
-        pos.x += headerDelta + text.geometry.boundingBox.max.x;
-    }
+    if (busy) { queued = section; return; }
 
-    if ( headerSpace <= 10 ) {
-        headerSize *= .95;
-        createHeader();
-    }
+    // same button again -> home
+    if (current === section) { goHome(); return; }
 
+    closeCurrent();
+    current = section;
+    setCurrentNav(section);                 // highlight immediately so the click feels acknowledged
+    const target = worldOf(section);
+    setAway(target !== 'home');
+
+    moveTo(target, () => {
+        if (current !== section) return;    // superseded while travelling
+        if (section === 'software') { placeCube(); cube.visible = true; }
+        showPanel(section);
+    });
+}
+
+// DOM chrome: top-right nav + brand link
+document.getElementById('chrome').addEventListener('click', (ev) => {
+    const target = ev.target.closest('[data-section]');
+    if (!target) return;
+    ev.preventDefault();
+    goTo(target.dataset.section);
+});
+
+// Escape closes whatever is open
+window.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && current) goHome(); });
+
+// ?open=<section> deep link; ?noanim disables DOM transitions
+{
+    const q = new URLSearchParams(window.location.search);
+    if (q.has('noanim')) document.body.classList.add('noanim');
+    const want = q.get('open');
+    if (want && SECTIONS.includes(want)) setTimeout(() => goTo(want), 800);
 }
 
 function createName() {
@@ -625,27 +396,36 @@ function createName() {
     }
 
     let textGeo = new TextGeometry(
-                                    'matt russell', 
+                                    'matthew russell, phd', 
                                     {
                                         font: fnt,
                                         size: nameSize,
-                                        depth: 1,
+                                        depth: 0.35,
                                         curveSegments: 12
                                     }
                                 );
     textGeo.computeBoundingBox();
 
     nameText = new Water( textGeo, waterOpts );
-    nameText.position.set( ledge + 2, 5, eye_fixed_z - z_depth );
+    // left-anchored near the screen edge (the live camera sits further back than eye_fixed_z, so widen `ledge`)
+    // center the geometry so the mesh pivots about its middle, then left-anchor the mesh
+    textGeo.center();
+    const halfW = textGeo.boundingBox.max.x;
+    nameText.position.set( (isMobile ? ledge + 2 : ledge * 1.22 + 2) + halfW, 3, eye_fixed_z - z_depth );
     scene.add( nameText );
 
 
-    const glowMaterial = new THREE.MeshBasicMaterial({ color: 0x5C295C, transparent: true, opacity: .5 });
+    const glowMaterial = new THREE.MeshBasicMaterial({ color: NAME_GLOW, transparent: true, opacity: .85, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     nameGlow = new THREE.Mesh(textGeo, glowMaterial);
-    nameGlow.position.set( nameText.position.x, nameText.position.y, nameText.position.z);
+    nameGlow.position.set( nameText.position.x, nameText.position.y, nameText.position.z );
+    // keep the letters parallel to the screen (no yaw, so the baseline stays level) and pitch them
+    // toward the slightly elevated camera; the thin extrusion keeps side walls out of the letter gaps
+    const toCam = new THREE.Vector3( eye_world_x, eye_world_y, eye_world_z ).sub( nameText.position );
+    nameText.rotation.x = Math.atan2( toCam.y, toCam.z );
+    nameGlow.rotation.copy( nameText.rotation );
     scene.add(nameGlow);
     
-    if (nameText.geometry.boundingBox.max.x >= w * .33) {
+    if (halfW * 2 >= w * (isMobile ? 0.9 : 0.42)) {
         nameSize *= .8;
         createName();
     }    
@@ -658,7 +438,6 @@ function loadText() {
     loader.load( './assets/helvetiker_regular.typeface.json', function ( f ) {
         fnt = f;
         createName();
-        createHeader(); 
     });
 }
 
@@ -689,8 +468,8 @@ const interval = 1 / 30;
 function animate() {
     requestAnimationFrame( animate );
 
-    if ( clock.getElapsedTime() < interval) return; 
-    
+    const elapsed = clock.getElapsedTime();
+    if ( elapsed < interval) return;
     clock.start();
 
     water.material.uniforms[ 'time' ].value += 1.0 / 120.0;
@@ -698,25 +477,19 @@ function animate() {
     if (nameText !== undefined) {
         nameText.material.uniforms[ 'time' ].value += 1.0 / 360.0;
     }
-    for (let header of headers) {
-        header[0].material.uniforms[ 'time' ].value += 1.0 / 360.0;
-    }
     if (cube !== undefined) {
         cube.rotation.y += 1/100;
     }
 
-    starField.animate(1/10000);
-
-    animateHomeButton();
+    starField.animate(elapsed);
 
     controls.update();
     if (underwaterTransition.isUnderwater) {
+        underwaterTransition.update(elapsed);
         renderer.render(underwaterTransition.underwaterScene, camera);
-    } else {   
+    } else {
         renderer.render(scene, camera);
     }
-
-    cssRenderer.render( cssScene, camera );
 
     TWEEN.update();
     

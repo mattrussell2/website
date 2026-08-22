@@ -66,7 +66,7 @@ export class SkyTransition {
 
     transitionToHome(callback) {
         const startY = this.camera.position.y;
-        const endY = 20;
+        const endY = 10;
         
         const startTarget = this.controls.target;
         const endTarget = new THREE.Vector3(0, 0, 0);
